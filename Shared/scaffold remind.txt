@@ -1,0 +1,2 @@
+﻿
+PM> Scaffold-DbContext "Data Source=TAKATTOWO;Initial Catalog=KatMemeSocialNetworkingDb;Integrated Security=True" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models - force
