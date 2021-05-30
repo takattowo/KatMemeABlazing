@@ -1,4 +1,5 @@
 using KatMemeABlazing.Server.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -26,7 +27,14 @@ namespace KatMemeABlazing.Server
 
             services.AddControllersWithViews();
             services.AddRazorPages();
+
             services.AddEntityFrameworkSqlServer().AddDbContext<KatMemeSocialNetworkingDbContext>();
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            }
+            ).AddCookie();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,6 +57,8 @@ namespace KatMemeABlazing.Server
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {

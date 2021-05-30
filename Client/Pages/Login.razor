@@ -1,0 +1,27 @@
+﻿@page "/login"
+@using KatMemeABlazing.Shared.Models
+@inject KatUserLogin _katUserLogin
+@inject NavigationManager _navigationManager
+
+<h2><b>Login</b></h2>
+<hr>
+
+<div class="col-6">
+    <input type="text" @bind="_katUserLogin.Email" class="form-control" placeholder="Email Address">
+</div>
+<br />
+<div class="col-6">
+    <input type="password" @bind="_katUserLogin.Password" class="form-control" placeholder="Password">
+</div>
+<br />
+<div class="col-6">
+    <button class="btn btn-primary" @onclick="LoginUser">Login</button>
+</div>
+
+@code {
+    public async Task LoginUser()
+    {
+        await _katUserLogin.LoginUser();
+        _navigationManager.NavigateTo("/profile",true);
+    }
+}

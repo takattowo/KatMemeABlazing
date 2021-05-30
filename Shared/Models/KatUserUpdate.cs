@@ -14,6 +14,20 @@ namespace KatMemeABlazing.Shared.Models
         public string CustomStatus { get; set; }
         public string Message { get; set; }
 
+        public void UpdateSucc()
+        {
+            //KatUser user = _katUserUpdate;
+            //await Http.PutAsJsonAsync<KatUser>("katuser/updateprofile/1", user);
+            this.Message = "Profile settings updated!";
+        }
+
+        public void GetProfile()
+        {
+            //KatUser user = await Http.GetFromJsonAsync<KatUser>("katuser/getprofile/1");
+            //_katUserUpdate = user;
+            this.Message = "Profile looaded!";
+        }
+
         public static implicit operator KatUserUpdate(KatUser katUser)
         {
             return new KatUserUpdate
