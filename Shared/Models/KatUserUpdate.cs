@@ -1,6 +1,9 @@
 ﻿using FluentValidation;
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
 
 #nullable disable
 
@@ -8,11 +11,25 @@ namespace KatMemeABlazing.Shared.Models
 {
     public partial class KatUserUpdate
     {
+        public int Id { get; set; }
         public string DisplayName { get; set; }
+        public string Email { get; set; }
         public string DisplayPicture { get; set; }
         public string Country { get; set; }
         public string CustomStatus { get; set; }
         public string Message { get; set; }
+
+        private HttpClient _httpClient;
+
+        public KatUserUpdate()
+        {
+
+        }
+
+        public KatUserUpdate(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+        }
 
         public void UpdateSucc()
         {
@@ -21,11 +38,20 @@ namespace KatMemeABlazing.Shared.Models
             this.Message = "Profile settings updated!";
         }
 
-        public void GetProfile()
+        public async Task GetProfile()
         {
-            //KatUser user = await Http.GetFromJsonAsync<KatUser>("katuser/getprofile/1");
-            //_katUserUpdate = user;
+            KatUser user = await _httpClient.GetFromJsonAsync<KatUser>("katuser/getprofile/" + Id);
+            LoadUser(user);
             this.Message = "Profile looaded!";
+        }
+
+        private void LoadUser(KatUserUpdate katUserUpdate)
+        {
+            this.DisplayName = katUserUpdate.DisplayName;
+            this.DisplayPicture = katUserUpdate.DisplayPicture;
+            this.Country = katUserUpdate.Country;
+            this.CustomStatus = katUserUpdate.CustomStatus;
+            this.Email = katUserUpdate.Email;
         }
 
         public static implicit operator KatUserUpdate(KatUser katUser)

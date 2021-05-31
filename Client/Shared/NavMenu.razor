@@ -8,18 +8,23 @@
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <ul class="nav flex-column">
         <li class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
+            <NavLink class="nav-link" href="hot" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Hot
             </NavLink>
         </li>
         <li class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="oi oi-plus" aria-hidden="true"></span> Counter
+            <NavLink class="nav-link" href="fresh">
+                <span class="oi oi-clock" aria-hidden="true"></span> Fresh
             </NavLink>
         </li>
         <li class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
+            <NavLink class="nav-link" href="funny">
+                <span class="oi oi-heart" aria-hidden="true"></span> Funny
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="wibu">
+                <span class="oi oi-trash" aria-hidden="true"></span> Degenerated Wibu
             </NavLink>
         </li>
     </ul>
@@ -33,5 +38,5 @@
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
-    }
+    }   
 }

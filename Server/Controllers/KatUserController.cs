@@ -54,7 +54,8 @@ namespace KatMemeABlazing.Server.Controllers
 
             if (User.Identity.IsAuthenticated)
             {
-                currentUser.Email = User.FindFirstValue(ClaimTypes.Name);
+                var email = User.FindFirstValue(ClaimTypes.Name);
+                currentUser = await _context.KatUsers.Where(u => u.Email == email).FirstOrDefaultAsync();
             }
 
             return await Task.FromResult(currentUser);

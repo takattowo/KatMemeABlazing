@@ -1,0 +1,69 @@
+﻿@page "/profile"
+@using KatMemeABlazing.Shared.Models
+@inject KatUserUpdate _katUserUpdate
+@inject NavigationManager _navigationManager
+@using System.Security.Claims
+<div class="katleft">
+    <div class="card" keep-alive="">
+        <h5 class="card-header bg-transparent py-15">
+            Profile
+        </h5>
+        <div class="card-body">
+            <span>
+                <div class="row">
+                    <div class="mb-15 col-md-6"><span><input type="text" name="fn" @bind-value="_katUserUpdate.DisplayName" placeholder="Display name" class="form-control touched pristine required" spellcheck="false" data-ms-editor="true"></span></div>
+                    <div class="mb-15 col-md-6"><span><input type="text" name="ln" placeholder="Test field 2" class="form-control untouched pristine required" spellcheck="false" data-ms-editor="true"></span></div>
+                </div>
+                <div class="mb-15">
+                    <div class="d-flex">
+                        <div class="form-check mr-30"><input type="radio" id="KOB3B3" name="gen" value="0" class="form-check-input"> <label for="KOB3B3" class="form-check-label">Test 1</label></div>
+                        <div class="form-check mr-30"><input type="radio" id="WSJL8K" value="1" name="gen" class="form-check-input"> <label for="WSJL8K" class="form-check-label">Test 2</label></div>
+                        <div class="form-check mr-30"><input type="radio" id="CG6LSH" value="2" name="gen" class="form-check-input"> <label for="CG6LSH" class="form-check-label">Test 3</label></div>
+                    </div>
+                </div>
+                <hr class="hr-line-dashed">
+                <div class="row">
+                    <div class="col-md-6 mb-15"><input type="text" name="co" placeholder="Country" class="form-control" spellcheck="false" data-ms-editor="true"></div>
+                    <div class="col-md-6 mb-15"><input type="text" name="ct" placeholder="City" class="form-control" spellcheck="false" data-ms-editor="true"></div>
+                </div>
+                <div class="mb-15"><input name="add" placeholder="Address" class="form-control" spellcheck="false" data-ms-editor="true"></div>
+                <div class="mb-15">
+                    <div class="input-group"><input type="email" @bind-value="_katUserUpdate.Email" disabled="disabled" name="mail" placeholder="_katUserUpdate.Email" class="form-control"> <button type="button" class="btn btn-primary">Change</button></div>
+                </div>
+                <div class="mb-15"><button type="button" class="btn btn-primary">Save</button></div>
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="katright"><div class="card">
+    <div class="list-group list-group-flush">
+        <a href="/my/profile" aria-current="page" class="list-group-item active router-link-active">Profile</a> <a href="/my/privacy" class="list-group-item">Privacy and safety</a> <a href="/my/password" class="list-group-item">
+            Change password
+        </a> <a href="/my/2fa" class="list-group-item">
+            Two-factor authentication
+        </a> <a href="/my/security" class="list-group-item">Security</a>
+    </div>
+</div></div>
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authie = await authenticationState;
+        var u = authie.User;
+
+        if (u.Identity.IsAuthenticated)
+        {
+            var claim = u.FindFirst(c => c.Type == ClaimTypes.NameIdentifier);
+            string ywouldudodis = claim?.Value;
+            _katUserUpdate.Id = Convert.ToInt32(ywouldudodis);
+            await _katUserUpdate.GetProfile();
+            //Console.WriteLine(ywouldudodis);
+        }
+        else
+            _navigationManager.NavigateTo("login");
+
+    }
+}

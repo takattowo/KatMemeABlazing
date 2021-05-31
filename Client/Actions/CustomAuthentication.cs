@@ -12,15 +12,16 @@ namespace KatMemeABlazing.Client.Actions
 {
     public class CustomAuthentication : AuthenticationStateProvider
     {
-        private HttpClient _httpClient;
+        private readonly HttpClient _httpClient;
 
         public async override Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             KatUser currentUser = await _httpClient.GetFromJsonAsync<KatUser>("katuser/getcurrentuser");
             if (currentUser != null && currentUser.Email != null)
             {
-                var claim = new Claim(ClaimTypes.Name, currentUser.Email);
-                var claimsIndentity = new ClaimsIdentity(new[] { claim }, "serverAuth");
+                var claimEmail = new Claim(ClaimTypes.Name, currentUser.Email);
+                var claimNameIdentifier = new Claim(ClaimTypes.NameIdentifier, Convert.ToString(currentUser.Id));
+                var claimsIndentity = new ClaimsIdentity(new[] { claimEmail, claimNameIdentifier }, "serverAuth");
                 var claimsPrincipal = new ClaimsPrincipal(claimsIndentity);
 
                 return new AuthenticationState(claimsPrincipal);
