@@ -1,0 +1,160 @@
+﻿@using System;
+@using System.Collections.Generic;
+@using System.Linq;
+@using System.Threading.Tasks;
+@using KatMemeABlazing.Shared.Models
+@inject HttpClient client
+@using System.Security.Claims
+@inject KatPostShow _katPostShow
+@using BlazorInputFile
+@using System.IO
+@inject NavigationManager _navigationManager
+
+
+<div id="new" aria-labelledby="share" role="dialog" class="modal fade show" aria-modal="true" style="display: block;background: #000000a6;" stylent="width: 500px;position: absolute;right: 0;margin: auto;top: 61px;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Post</h5>
+                <button @onclick="@ModalCancel" type="button" data-dismiss="modal" aria-label="Close" class="close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>  <EditForm Model="@_katPostShow" OnValidSubmit="@HandleValidSubmit">
+                <div class="modal-body">
+                    <span>
+                        <div class="mb-15">
+                            <span>
+                                <div class="input-group">
+                                    <InputText type="text" @bind-Value="@_katPostShow.PostTitle" placeholder="Title" class="form-control touched dirty" spellcheck="false" data-ms-editor="true" />
+                                </div>
+
+                            </span>
+                        </div>
+                        <div class="mb-15">
+                            <span>
+                                <div class="input-group">
+                                    @if (_katPostShow.PostSectionId == 4)
+                                    {
+                                        <InputTextArea type="text" @bind-Value="@_katPostShow.PostContent" placeholder="Content" class="form-control touched dirty" />
+                                    }
+                                    else 
+                                    {
+                                        <textarea type="text" placeholder="Content" class="form-control touched dirty" disabled/>
+                                    }
+                                </div>
+
+                            </span>
+                        </div>
+                        <div class="mb-15"></div>
+                        <div class="mb-15">
+                            <label for="cars">What is it about?</label>
+                            <select class="form-control" disabled="true">
+                                @if (_katPostShow.PostSectionId == 1) {
+                                <option value="1" selected="selected">Funny</option>
+                                }
+                                else if (_katPostShow.PostSectionId == 2) {
+                                <option value="2">Weeb</option>
+                                }
+                                else if (_katPostShow.PostSectionId == 3) {
+                                <option value="3">Animal</option>
+                                }
+                                else if (_katPostShow.PostSectionId == 4) {
+                                <option value="4">Discussion</option>
+                                }
+                            </select>
+
+                        </div>
+                        <div class="mb-15 position-relative">
+                            <img src="@_katPostShow.PostImage" style="min-width: 130px;background: #e9ecef;min-height: 120px;max-width: 25%;" />
+                            <button type="button" class="btn upload-placeholder cv mb-10 mr-5">
+                                <BlazorInputFile.InputFile OnChange="HandleSelect" type="file" accept="image/*" placeholder="Choose an image to upload"></BlazorInputFile.InputFile>
+                            </button>
+                        </div>
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="mb-15 d-flex justify-content-end">
+                            <!---->
+                            <div class="btn-group">
+                                <button type="submit" class="btn btn-primary"><!---->Submit</button>
+                                <button type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-reference="parent" class="btn btn-primary dropdown-toggle dropdown-toggle-split">
+                                    <span class="sr-only">.</span>
+                                </button>
+                            </div>
+                        </div>
+                    </span>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    public bool ShowDialog
+    {
+        get;
+        set;
+    }
+
+    bool isAbleToContent { get; set; } = false;
+
+
+    [Parameter]
+    public EventCallback<bool> OnClose
+    {
+        get;
+        set;
+    }
+
+    private Task ModalCancel()
+    {
+        return OnClose.InvokeAsync(false);
+        StateHasChanged();
+    }
+    private Task ModalOk()
+    {
+        return OnClose.InvokeAsync(true);
+        StateHasChanged();
+    }
+
+    public string PicUrl { get; set; }
+
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+
+    protected async Task HandleValidSubmit()
+    {
+        await client.PostAsync("upload", content);
+
+        var pp = await client.PutAsJsonAsync<KatPost>("katposts/update/" + _katPostShow.Id, _katPostShow);
+        await Task.Delay(100);
+        StateHasChanged();
+        
+        ModalOk();
+    }
+    MultipartFormDataContent content { get; set; }
+    private async Task HandleSelect(IFileListEntry[] files)
+    {
+        var file = files.FirstOrDefault();
+        if (file != null)
+        {
+            var ms = new MemoryStream();
+            await file.Data.CopyToAsync(ms);
+
+            PicUrl = $"data:image/png;base64,{Convert.ToBase64String(ms.GetBuffer())}";
+
+            _katPostShow.PostImage = "/Upload/" + file.Name;
+            content = new MultipartFormDataContent
+    {
+                {new ByteArrayContent(ms.GetBuffer()), "\"wwwroot\\Upload\"", file.Name }
+            };
+            //await client.PostAsync("upload", content);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        int posttoedit = Int32.Parse(_navigationManager.Uri.Split('/').Last());
+        await _katPostShow.GetPostForShow(posttoedit);
+    }
+}

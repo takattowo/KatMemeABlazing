@@ -1,0 +1,31 @@
+﻿<div id="new" @onclick="@ModalCancel" aria-labelledby="share" role="dialog" class="modal fade show" aria-modal="true" style="background: #000000cc;text-align: center;display: table;width: 100%;height: 100vh;">
+    <div class="modal-dialog modal-lg">
+        <img class="img-fluid w-full" alt="Reze" src="@picced" title="Reze" style="border-radius: 2px;max-height: 90vh;width: auto!important;">
+        <p style="text-align: center;color: #ffff;padding-top: 1rem;">@piccedtit</p>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public String picced { get; set; }
+    [Parameter]
+    public String piccedtit { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnClose
+    {
+        get;
+        set;
+    }
+
+    private Task ModalCancel()
+    {
+        return OnClose.InvokeAsync(false);
+        StateHasChanged();
+    }
+    private Task ModalOk()
+    {
+        return OnClose.InvokeAsync(true);
+        StateHasChanged();
+    }
+}

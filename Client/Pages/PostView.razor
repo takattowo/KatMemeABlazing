@@ -1,0 +1,465 @@
+﻿@page "/p/{postId:int}"
+@using KatMemeABlazing.Shared.Models
+@inject KatPostShow _katPostShow
+@inject KatSectionShow _katSectionShow
+@inject KatUserUpdate _katUserUpdate
+@inject KatComment _katCommentComment
+@inject KatCommentShow _katCommentShow
+@inject NavigationManager _navigationManager
+@inject HttpClient client
+@using System.Security.Claims
+
+@*<Virtualize ItemsProvider="LoadPostForFuckSake" Context="post">
+        <ItemContent>
+            <div style="height: 50px;">
+                <a href="/ok"
+                   class="list-group-item list-group-item-action flex-column align-items-start bold-text">
+                    @post.PostTitle <span> </span> <img src="@post.PostImage" style="height: 100px;" />
+                </a>
+            </div>
+        </ItemContent>
+        <Placeholder>
+            <div style="height: 50px;">
+                <p>Loading...</p>
+            </div>
+        </Placeholder>
+    </Virtualize>*@
+
+@*@foreach (KatPost katpost in listKatPosts)
+    {
+        <div style = "height: 50px;" >
+        <a href="/ok"
+           class="list-group-item list-group-item-action flex-column align-items-start bold-text">
+            @katpost.PostTitle <span> </span> <img src="@katpost.PostImage" style="height: 100px;" />
+        </a>
+        </div>
+    }*@
+
+<div class="katleft">
+
+
+
+
+    <div class="card mb-15">
+        <div class="card-body clearfix">
+            <div class="d-flex align-middle">
+                <div class="pr-10">
+
+                    @if (@_katPostShow.PostAuthor != null)
+                    {
+                        <a href="/u/@_katPostShow.PostAuthor" class="avatar bg-light" aria-label="...">
+
+                            @if (@_katUserUpdate.DisplayPicture != null)
+                            {
+                                <img src="@_katUserUpdate.DisplayPicture" alt="...">
+                            }
+                            else
+                            {
+                                <div>@_katUserUpdate.DisplayName.Substring(0, 1).ToUpper()</div>
+                            }
+
+                        </a>
+                    }
+                    else
+                    {
+                        <a href="#" class="avatar bg-light" aria-label="...">
+
+                            <img src="" alt="...">
+
+                        </a>
+                    }
+
+                </div>
+                <div class="flex-fill">
+                    @if (@_katPostShow.PostAuthor != null)
+                    {
+                        <div class="font-weight-bold title">
+                            <a href="/p/@_katPostShow.Id" class="" title="@_katPostShow.PostTitle">
+                                @_katPostShow.PostTitle
+                            </a>
+                        </div>
+
+                        <a href="/u/@_katPostShow.PostAuthor" class="text-muted small">
+                            by @_katUserUpdate.DisplayName at @_katPostShow.CreatedDate
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="text-muted small">
+                            Sponsored
+                        </a>
+                    }
+
+                    @if (isAboutToDelete)
+                    {
+                        <div class="modalfake" @onclick="()=>isAboutToDelete = false" role="dialog" tabindex="-1">
+                        </div>
+                        <div class="modal-dialog" role="document" style="top: 25%;z-index:9999999;">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Delete this post?</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true" @onclick="()=>isAboutToDelete = false">×</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Are you fucking sure about that?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" @onclick="@DeletePost" class="btn btn-primary">Yeah boi</button>
+                                    <button type="button" @onclick="()=>isAboutToDelete = false" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                </div>
+                @if (AboutToPost)
+                {
+                    <EdittingDialog OnClose="@onDeleteDialog" />
+                }
+                @if (AboutToReport)
+                {
+                    <ReportingDialog OnClose="@onDeleteDialogReport" />
+                }
+                @if (SeePiccccccccc)
+                {
+                    <ImageModula OnClose="@onDeleteDialogPic" picced="@_katPostShow.PostImage" piccedtit="@_katPostShow.PostTitle" />
+                }
+                <div class="card-controls">
+                    <div class="dropdown">
+                        <a data-toggle="dropdown" @onclick="()=>isToolExpanded =! isToolExpanded" aria-label="More..." aria-haspopup="true" aria-expanded="false" class="btn"><i class="fa fa-ellipsis-v"></i></a>
+                        @if (isToolExpanded)
+                        {
+                            <div class="modalfake trans" @onclick="()=>isToolExpanded = false" role="dialog" tabindex="-1"></div>
+                            <div role="menu" aria-labelledby="60ab52968531ce7e95df266e" class="dropdown-menu dropdown-menu-right show" x-placement="bottom-end" style="position: absolute; transform: translate3d(0px, 38px, 0px); top: 0px; left: 0px; will-change: transform; z-index: 9999999;">
+                                @if (_katPostShow.PostAuthor == _katCommentComment.CommentAuthor)
+                                {
+                                    <a @onclick="@onOpenDialog" data-toggle="modal" data-target="#share" role="menuitem" class="dropdown-item">
+                                        Edit
+                                    </a>
+                                    <a @onclick="@AskBeforeDelete" data-toggle="modal" data-target="#share" role="menuitem" class="dropdown-item">
+                                        Delete
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                }
+                                <a @onclick="()=>isToolExpanded = false" data-toggle="modal" data-target="#share" role="menuitem" class="dropdown-item">
+                                    Share it
+                                </a> <div class="dropdown-divider"></div>
+                                <a @onclick="@onOpenDialogReport" data-toggle="modal" data-target="#claim" role="menuitem" class="dropdown-item">
+                                    Report
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        @if (@_katPostShow.PostContent != null)
+        {
+            <div class="card-body html-content">
+                <div class="card-text" style="padding: 0 15px;"><p>@_katPostShow.PostContent</p></div>
+            </div>
+        }
+
+        @if (@_katPostShow.PostImage != "null")
+        {
+            <img alt="@_katPostShow.PostTitle" @onclick="@onOpenDialogPic" class="img-fluid w-full" src="@_katPostShow.PostImage" title="@_katPostShow.PostTitle">
+        }
+        <div class="card-body py-5 card-attrs">
+            <div class="float-right">
+                <button @onclick="@onOpenDialogReport" type="button" data-toggle="modal" data-target="#claim" class="btn btn-outline-secondary"><i class="fa fa-exclamation-triangle"></i></button>
+                <div class="dropdown d-inline">
+                    <button type="button" id="3d82dee12e3e" data-toggle="dropdown" aria-expanded="false" class="btn btn-outline-secondary" @onclick="()=>isShareToolExpanded =! isShareToolExpanded"><i class="fa fa-share-alt"></i></button>
+                    @if (isShareToolExpanded)
+                    {
+                        <ul class="dropdown-menu show" style="position: absolute; transform: translate3d(0px, 32px, 0px); top: -120px; left: 40px; will-change: transform;" x-placement="bottom-start">
+                            <li><a href="http://www.facebook.com/share.php?u=@(_navigationManager.Uri)" target="_blank" class="dropdown-item">Facebook</a></li>
+                            <li><a class="dropdown-item">Twitter</a></li>
+                            <li><a class="dropdown-item">Pinterest</a></li>
+                            <li><a class="dropdown-item">Tumblr</a></li>
+                            <li><a class="dropdown-item">Reddit</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a data-toggle="modal" data-target="#share" class="dropdown-item">More</a></li>
+                        </ul>
+                    }
+                </div>
+            </div>
+            <button type="button" class="btn btn-outline-secondary">
+                ▲   @if (@_katPostShow.PositiveVoteCount == null)
+                {<span class="ml-10">0</span> }
+                else
+                { <span class="ml-10">@_katPostShow.PositiveVoteCount</span>}
+            </button>
+            <button type="button" class="btn btn-outline-secondary">
+                ▼
+                @if (@_katPostShow.NegativeVoteCount == null)
+                {<span class="ml-10">0</span> }
+                else
+                { <span class="ml-10">@_katPostShow.NegativeVoteCount</span>}
+            </button>
+        </div>
+    </div>
+    <div class="comment-list">
+
+
+        <AuthorizeView>
+            <Authorized Context="Auth">
+                @if (!noPost)
+                {
+                    <EditForm Model="@_katCommentComment" OnValidSubmit="@PostComment" keep-alive>
+                        <div class="card widgetrite">
+                            <div class="card-body">
+                                <div class="d-flex">
+                                    <div class="pr-20"><a class="avatar bg-light" aria-label="..."><span class="text-uppercase">M</span></a></div>
+                                    <div class="flex-fill">
+                                        <div>
+                                            <div class="mb-15">
+                                                <div class="v-md-container v-md-auto-resize">
+                                                    <div class="v-md-wrapper">
+                                                        <InputTextArea @bind-Value="_katCommentComment.CommentContent" placeholder="Write a comment" class="v-md-editor" style="width: 100%;border-color: #49505745;padding: 10px;" />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <DataAnnotationsValidator />
+                                            <ValidationSummary />
+
+                                            <div class="mb-15">
+                                                <button type="submit" class="btn btn-primary mr-15">Submit</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </EditForm>
+                }
+                else
+                {
+                    <div class="card widgetrite">
+                        <div class="card-body d-flex clearfix">
+                            <div class="pr-20"><a class="avatar bg-light" aria-label="..."><span class="text-uppercase">M</span></a></div>
+                            <div class="flex-fill">
+                                <a class="font-weight-bold">Me</a>
+                                <div class="small text-muted widgetrite"><a style="color: #6d6d6d" class="font-weight-bold">@_katCommentComment.CreatedDate</a></div>
+                                <div class="mb-15 mt-10">
+                                    <div class="card-text html-content">
+                                        <p>@_katCommentComment.CommentContent</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!---->
+                        </div>
+                    </div>
+                }
+
+            </Authorized>
+            <NotAuthorized>
+                <div class="widgetrite"><div role="alert" class="alert alert-success"><h4>Welcome to KatMeme!</h4> <div class="mb-15">Got something funny to share? Join us now!<p class="mt-10"><br><a href="/register" class="btn btn-outline-primary">Sign up!</a></p></div></div></div>
+            </NotAuthorized>
+        </AuthorizeView>
+
+
+        @if (CmtCount > 0)
+        {
+
+
+            <Virtualize ItemsProvider="LoadCommentForFuckSake" Context="katcomment">
+                <ItemContent>
+                    <div class="card widgetrite">
+                        <div class="card-body d-flex clearfix">
+                            <div class="pr-20"><a href="/u/@katcomment.CommentAuthor" class="avatar bg-light" aria-label="..."><img src="@katcomment.CommentAuthorNavigation.DisplayPicture" alt="..."></a></div>
+                            <div class="flex-fill">
+                                <a href="/u/@katcomment.CommentAuthor" class="font-weight-bold">@katcomment.CommentAuthorNavigation.DisplayName</a>
+                                <div class="small text-muted widgetrite"><a style="color: #6d6d6d" href="/p/@postId#@katcomment.Id" class="font-weight-bold">@katcomment.CreatedDate</a></div>
+                                <div class="mb-15 mt-10">
+                                    <div class="card-text html-content">
+                                        <p>@katcomment.CommentContent</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!---->
+                        </div>
+                    </div>
+                </ItemContent>
+                <Placeholder>
+                    <div class="card widgetrite">
+                        <div class="card-body d-flex clearfix">
+                            <div class="pr-20"><a class="avatar bg-light" aria-label="..."></a></div>
+                            <div class="flex-fill">
+                                <a class="font-weight-bold">Fetching...</a>
+                            </div>
+                        </div>
+                    </div>
+                </Placeholder>
+            </Virtualize>
+        }
+        else
+        {
+            <div class="card widgetrite">
+                <div class="card-body d-flex clearfix">
+                    <div class="pr-20"><a class="avatar bg-light" aria-label="..."><img src="https://cdn.discordapp.com/avatars/329078015583715328/5d8ab9af71e2c8d4a4a9106462a9cf20.png"></a></div>
+                    <div class="flex-fill"><a style="color: #795548;font-size: 1.1em;">Be the first one to comment!</a></div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+<div class="katright">
+    <Ads1 />
+    <DiscordWidget />
+    <SubcrWidget />
+</div>
+
+@code {
+    [Parameter]
+    public int postId { get; set; }
+    public bool AboutToPost { get; set; }
+    public bool AboutToReport { get; set; }
+    public bool SeePiccccccccc { get; set; }
+
+    private async void onDeleteDialog(bool accepted)
+    {
+        await Task.Delay(1);
+        await _katPostShow.GetPostForShow(postId);
+        isToolExpanded = false;
+        AboutToPost = false;
+        await Task.Delay(100);
+        StateHasChanged();
+    }
+    private async void onOpenDialog()
+    {
+        await Task.Delay(1);
+        await _katPostShow.GetPostForShow(postId);
+        isToolExpanded = false;
+        AboutToPost = true;
+        await Task.Delay(100);
+        StateHasChanged();
+    }
+
+    private async void onDeleteDialogReport(bool accepted)
+    {
+        isToolExpanded = false;
+        AboutToReport = false;
+        StateHasChanged();
+    }
+    private async void onOpenDialogReport()
+    {
+        isToolExpanded = false;
+        AboutToReport = true;
+        StateHasChanged();
+    }
+
+    private async void onDeleteDialogPic(bool accepted)
+    {
+        SeePiccccccccc = false;
+        StateHasChanged();
+    }
+    private async void onOpenDialogPic()
+    {
+        SeePiccccccccc = true;
+        StateHasChanged();
+    }
+
+
+    public bool noPost { get; set; }
+
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+
+    public int CmtCount { get; set; }
+
+    KatSection sectionImg { get; set; } = new KatSection();
+
+
+    public List<KatComment> listKatComments { get; set; } = new List<KatComment>();
+
+    public bool isToolExpanded = false;
+    public bool isAboutToDelete = false;
+    public bool isShareToolExpanded = false;
+
+    private async ValueTask<ItemsProviderResult<KatComment>> LoadCommentForFuckSake(ItemsProviderRequest request)
+    {
+        listKatComments = await _katCommentShow.GetComment(postId);
+
+        return new ItemsProviderResult<KatComment>(listKatComments, CmtCount);
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        try
+        {
+            await _katPostShow.GetPostForShow(postId);
+        }
+        catch
+        {
+            _navigationManager.NavigateTo("404");
+        }
+
+
+        await _katUserUpdate.GetProfile(_katPostShow.PostAuthor);
+
+
+
+        CmtCount = await _katCommentShow.GetCommentCount(postId);
+
+        if (listKatComments == null)
+        {
+            new KatComment { CommentAuthor = null, CommentAuthorNavigation = null, CommentContent = "Be the first to comment!" };
+        }
+
+        var authie = await authenticationState;
+        var u = authie.User;
+        if (u.Identity.IsAuthenticated)
+        {
+            var claim = u.FindFirst(c => c.Type == ClaimTypes.NameIdentifier);
+            string ywouldudodis = claim?.Value;
+            _katCommentComment.CommentAuthor = Convert.ToInt32(ywouldudodis);
+        }
+    }
+
+    private async Task DeletePost()
+    {
+        isToolExpanded = false;
+        if (_katPostShow.PostAuthor == _katCommentComment.CommentAuthor)
+        {
+            await client.DeleteAsync("katposts/delete/"+ _katPostShow.Id);
+            StateHasChanged();
+            _navigationManager.NavigateTo("/");
+        }
+    }
+
+    private void AskBeforeDelete()
+    {
+        isToolExpanded = false;
+        isAboutToDelete = true;
+    }
+
+    private async Task PostComment()
+    {
+        _katCommentComment.CreatedDate = DateTime.Now;
+        _katCommentComment.NegativeVoteCount = 0;
+        _katCommentComment.PositiveVoteCount = 0;
+        _katCommentComment.PostId = postId;
+
+        await client.PostAsJsonAsync<KatComment>("katcomments/create", _katCommentComment);
+        await Task.Delay(100);
+        listKatComments.Add(_katCommentComment); CmtCount = await _katCommentShow.GetCommentCount(postId);
+        await Task.Delay(100); noPost = true;
+        StateHasChanged();
+    }
+
+
+    private void NavigateToChat()
+    {
+        _navigationManager.NavigateTo("/chat");
+    }
+}

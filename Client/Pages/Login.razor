@@ -2,26 +2,67 @@
 @using KatMemeABlazing.Shared.Models
 @inject KatUserLogin _katUserLogin
 @inject NavigationManager _navigationManager
+   
+        <AuthorizeView>
+            <Authorized>
+                @RedirectToHot();
+            </Authorized>
+            <NotAuthorized><div style="background-image: url(Upload/a3ENM11_460swp.png);width: 100%;height: 100%;position: fixed;background-size: cover;left: 0;filter: blur(8px);-webkit-filter: blur(8px);top: 0;" upload=""></div>
+                    <div class="page-login-full" keep-alive="" style="width: 50%;margin: 0 auto;">
+                        <div class="card mx-auto mt-100 card-form">
+                            <div class="card-body">
+                                <div class="mb-15 text-center brand"><a href="/" class="avatar avatar-xl bg-primary text-white router-link-active"><i class="fa fa fa-gitlab"></i></a></div> <div class="mb-15"><h2 class="text-center">KatMeme ٩(◕‿◕｡)۶	</h2></div> <span>
+    <!----> <div class="mb-15"><span><input placeholder="E-mail" name="uid" @bind="_katUserLogin.Email" class="form-control untouched pristine required"></span></div> <div class="mb-15"><span><input type="password" @bind="_katUserLogin.Password" placeholder="Password" name="pwd" class="form-control untouched pristine required"></span></div> <div class="mb-15"><a href="/forgetpwd" class="">Forgot password?</a></div> <div class="mb-15"><button type="button" class="btn btn-primary btn-block" @onclick="LoginUser">Login</button></div>
 
-<h2><b>Login</b></h2>
-<hr>
+    <div class="mb-15"><button @onclick="TwitterLogin" id="twitter-button" class="btn btn-block btn-social btn-twitter">
+    <i class="fa fa-twitter"></i> Sign in with Twitter
+</button></div>
 
-<div class="col-6">
-    <input type="text" @bind="_katUserLogin.Email" class="form-control" placeholder="Email Address">
-</div>
-<br />
-<div class="col-6">
-    <input type="password" @bind="_katUserLogin.Password" class="form-control" placeholder="Password">
-</div>
-<br />
-<div class="col-6">
-    <button class="btn btn-primary" @onclick="LoginUser">Login</button>
-</div>
+    <div class="mb-15">
+        Create new account? <a href="/register" class="text-primary">
+            Sign up!
+        </a>
+    </div>
+</span>
+                            </div>
+                        </div>
+                    </div>
+            </NotAuthorized>
+        </AuthorizeView>
+   
 
-@code {
-    public async Task LoginUser()
-    {
-        await _katUserLogin.LoginUser();
-        _navigationManager.NavigateTo("/profile",true);
+    @code {
+        [CascadingParameter]
+        public Task<AuthenticationState> authenticationState { get; set; }
+        string msg { get; set; } = "";
+
+        public async Task LoginUser()
+        {
+            msg = "Connecting...";
+            await _katUserLogin.LoginUser();
+            var authie = await authenticationState;
+            var u = authie.User;
+            if (u.Identity.IsAuthenticated)
+            {
+                _navigationManager.NavigateTo("/");
+            }
+            else
+            {
+                msg = "Username or password is incorrect.";
+                _navigationManager.NavigateTo("/login", true);
+            }
+
+
+        }
+
+        private void TwitterLogin()
+        {
+            _navigationManager.NavigateTo("katuser/TwitterSignIn", true);
+        }
+
+        public async Task RedirectToHot()
+        {
+            await _katUserLogin.LoginUser();
+            _navigationManager.NavigateTo("/");
+        }
     }
-}

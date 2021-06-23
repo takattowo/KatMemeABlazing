@@ -1,9 +1,16 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager _navigationManager
 @inject HttpClient _httpClient
+@using System.Security.Claims
+@using KatMemeABlazing.Client.Components;
+@using Blazored.Typeahead
+@using KatMemeABlazing.Shared.Models
+@inject KatPostShow _katPostSearch
+@inject KatUserUpdate _katUserUpdate
+@inject KatNotificationShow _katNotificationShow
 
 
-<div class="page">
+<div class="page @GetCssClass()">
     <div class="sidebar">
         <NavMenu />
     </div>
@@ -11,16 +18,123 @@
     <div class="main">
 
         <div class="top-row px-4">
+
+            <form role="search" class="d-flex quick-search">
+                <div class="input-group">
+                    <BlazoredTypeahead Placeholder="Quick search" style="width: 300px;" SearchMethod="AutoSearch" @bind-Value="selectedKatPost">
+                        <SelectedTemplate>
+                            @context.PostTitle
+                        </SelectedTemplate>
+                        <ResultTemplate>
+                            <b>@context.PostTitle</b>  @*@if (context.PostSectionId == 1)
+                                {<p>Funny</p> }
+                                else if (context.PostSectionId == 2)
+                                { <p>Weeb</p> }
+                                else if (context.PostSectionId == 3)
+                                { <p>Animal</p>}*@
+                        </ResultTemplate>
+                        <NotFoundTemplate>
+                            No post matched!
+                        </NotFoundTemplate>
+                    </BlazoredTypeahead>
+
+                    @if (selectedKatPost != null)
+                    {
+                        if (!_navigationManager.Uri.Contains($"/p/{selectedKatPost.Id}") && selectedKatPost.Id != 290220)
+                        {
+                            _navigationManager.NavigateTo($"/p/{selectedKatPost.Id}");
+                            selectedKatPost.Id = 290220;
+                        }
+
+                    }
+
+                    <button type="button" aria-label="Search" role="button" class="btn btn-primary btn-search" style="margin-left: -1px;border-top-left-radius: 0;border-bottom-left-radius: 0;"><i class="fa fa-search"></i></button>
+                </div>
+            </form>
+
+
             <AuthorizeView>
                 <Authorized>
-                    <div class="top-row px-4">
-                        <h4><b>Hello, @context.User.Identity.Name</b></h4> &nbsp;
-                        <button class="btn btn-danger" @onclick="Logout">Logout</button>
+                    <div class="px-4">
+
+
+                        <ul class="navbar-nav my-2 my-lg-0">
+                            <li title="Create new post" class="nav-item mr-10"><a data-target="#new" @onclick="@onOpenDialog" data-toggle="modal" aria-label="New Post" class="nav-icon rounded-circle"><i class="fa fa-edit"></i></a></li>
+                            @if (AboutToPost)
+                            {
+                                <PostingDialog OnClose="@onDeleteDialog" />
+                            }
+                        <li id="n1a8a75" class="nav-item dropdown mr-10">
+                            <!----> <a id="QBDX05" role="button" data-toggle="dropdown" aria-expanded="false" class="nav-icon rounded-circle" @onclick="()=>expandN =! expandN"><i class="fa fa-bell-o"></i></a>
+                            @if (expandN)
+                            {
+                                <NotificationPanel OnClose="@onDeleteDialogNotif" />
+                            }
+                            @if (NotifCount != 0)
+                            {
+                                <span class="badge rounded-pill badge-notification bg-danger badgetest">@NotifCount</span>
+                            }
+                            
+                        </li>
+                            <li class="nav-item mr-10 dropdown">
+                                <a href="/u/@_katUserUpdate.Id" data-toggle="dropdown" aria-expanded="false" data-animation="slide-bottom" class="nav-icon avatar rounded-circle">
+                                    <img src="@_katUserUpdate.DisplayPicture" alt="...">
+                                    @*@if (!string.IsNullOrEmpty(_katUserUpdate.DisplayPicture))
+                                        {
+                                            <img src="@_katUserUpdate.DisplayPicture" alt="...">
+                                        }
+                                        else {
+                                            <span class="text-uppercase">@_katUserUpdate.DisplayName.Substring(0, 1).ToUpper()</span>
+                                            }
+                                    *@
+                                </a>
+
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a data-toggle="dropdown" title="More..." aria-expanded="true" data-animation="slide-bottom" role="button" aria-label="More..." class="nav-icon rounded-circle show" @onclick="()=>expandSubT =! expandSubT"><i class="nav-fa fa fa-ellipsis-h"></i></a>
+                                @if (expandSubT)
+                                {
+                                    <div class="modalfake trans" @onclick="()=>expandSubT = false" role="dialog" tabindex="-1"></div>
+                                    <div role="menu" class="dropdown-menu show" style="user-select: none; position: absolute; transform: translate3d(-134px, 40px, 0px); top: 0px; left: 0px; will-change: transform; z-index: 9999999;" x-placement="bottom-start">
+                                        <a href="/u/@_katUserUpdate.Id" class="dropdown-item" role="menuitem" @onclick="()=>expandSubT = false">
+                                            View my profile
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a href="/profile" class="dropdown-item" role="menuitem" @onclick="()=>expandSubT = false">
+                                            Edit profile
+                                        </a> <a href="mailto:takatran29@gmail.com?subject=Request a new feature" role="menuitem" class="dropdown-item" @onclick="()=>expandSubT = false">Request a feature</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a href="" role="menuitem" class="dropdown-item" @onclick="Logout">Logout</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a href="/about/terms" class="dropdown-item" role="menuitem" @onclick="()=>expandSubT = false">
+                                            Terms
+                                        </a> <a href="/about/privacy" class="dropdown-item" role="menuitem" @onclick="()=>expandSubT = false">
+                                            Privacy
+                                        </a> <a href="mailto:takatran29@gmail.com" role="menuitem" class="dropdown-item" @onclick="()=>expandSubT = false">Contact us</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" role="menuitem" @onclick="darkmoded">
+                                            Dảk mode
+                                        </a>
+                                        @if (@_katUserUpdate.Id == 1)
+                                        {
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" role="menuitem" @onclick="reporting">
+                                                Manage reports
+                                            </a>
+                                        }
+                                    </div>
+                                }
+
+                            </li>
+                        </ul>
                     </div>
+
                 </Authorized>
                 <NotAuthorized>
-                    <div class="top-row px-4">
-                        <button class="btn btn-primary" @onclick="Login">Login</button>
+                    <div class="px-4">
+                        <a href="/register" class="btn btn-outline-secondary navbar-btn">Sign up</a>
+                        &nbsp;&nbsp;
+                        <a href="/login" class="btn btn-outline-primary navbar-btn">Login</a>
                     </div>
                 </NotAuthorized>
             </AuthorizeView>
@@ -36,10 +150,95 @@
 </div>
 
 @code {
+    public bool expandSubT = false;
+    public bool darkmode = false;
+    public bool AboutToPost { get; set; }
+    public bool expandN = false;
     private void Login()
     {
         _navigationManager.NavigateTo("login", true);
     }
+
+
+    private void darkmoded()
+    {
+        darkmode = !darkmode;
+    }
+
+    private void reporting()
+    {
+        expandSubT = false;
+        _navigationManager.NavigateTo("reporting");
+    }
+
+
+    private string GetCssClass()
+    {
+        if (darkmode)
+            return "darkmode";
+        else
+            return String.Empty;
+    }
+
+
+
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+
+    public int MyId { get; set; }
+
+
+    private void onDeleteDialogNotif(bool accepted)
+    {
+        expandN = false;
+        StateHasChanged();
+    }
+    private void onDeleteDialog(bool accepted)
+    {
+        AboutToPost = false;
+        StateHasChanged();
+    }
+    private void onOpenDialog()
+    {
+        AboutToPost = true;
+        StateHasChanged();
+    }
+
+    public int NotifCount { get; set; } = 0;
+
+    private List<KatPost> listKatPosts;
+    private KatPost selectedKatPost;
+    private System.Threading.Timer timer;
+    protected override async Task OnInitializedAsync()
+    {
+        var authie = await authenticationState;
+        var u = authie.User;
+
+        if (u.Identity.IsAuthenticated)
+        {
+            var claim = u.FindFirst(c => c.Type == ClaimTypes.NameIdentifier);
+            string ywouldudodis = claim?.Value;
+            MyId = Convert.ToInt32(ywouldudodis);
+            _katUserUpdate.Id = MyId;
+            await _katUserUpdate.GetProfile();
+
+            timer = new System.Threading.Timer(async (object stateInfo) =>
+            {
+                NotifCount = await _katNotificationShow.GetNotificationCountUnseen(MyId);
+                StateHasChanged();
+            }, new System.Threading.AutoResetEvent(false), 1000, 1000);
+        }
+        listKatPosts = await _katPostSearch.GetPost();
+
+    }
+
+
+
+    private async Task<IEnumerable<KatPost>> AutoSearch(string searchpost)
+    {
+        return await Task.FromResult(listKatPosts.Where(x => x.PostTitle.ToLower().Contains(searchpost.ToLower())).ToList());
+    }
+
     private async Task Logout()
     {
         await _httpClient.GetAsync("katuser/logoutuser");

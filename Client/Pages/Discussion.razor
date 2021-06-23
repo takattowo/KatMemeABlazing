@@ -1,0 +1,118 @@
+﻿@page "/discussion"
+@using KatMemeABlazing.Shared.Models
+@inject KatPostShow _katPostShow
+@inject NavigationManager _navigationManager
+@inject HttpClient client
+@inject KatSectionShow _katSectionShow
+@*<Virtualize ItemsProvider="LoadPostForFuckSake" Context="post">
+        <ItemContent>
+            <div style="height: 50px;">
+                <a href="/ok"
+                   class="list-group-item list-group-item-action flex-column align-items-start bold-text">
+                    @post.PostTitle <span> </span> <img src="@post.PostImage" style="height: 100px;" />
+                </a>
+            </div>
+        </ItemContent>
+        <Placeholder>
+            <div style="height: 50px;">
+                <p>Loading...</p>
+            </div>
+        </Placeholder>
+    </Virtualize>*@
+
+@*@foreach (KatPost katpost in listKatPosts)
+    {
+        <div style = "height: 50px;" >
+        <a href="/ok"
+           class="list-group-item list-group-item-action flex-column align-items-start bold-text">
+            @katpost.PostTitle <span> </span> <img src="@katpost.PostImage" style="height: 100px;" />
+        </a>
+        </div>
+    }*@
+
+
+
+<LoadingSpinner />
+@if (PostsCount > 0)
+{
+    <div class="row">
+
+        <Virtualize ItemsProvider="LoadPostForFuckSake" Context="katpost">
+            <ItemContent>
+                <div class="col-xl-6 col-lg-6 col-sm-12">
+                    <div class="card mb-15">
+                        <div class="card-body clearfix">
+                            <div class="d-flex align-middle">
+                                <div class="pr-10"><a href="/u/@katpost.PostAuthorNavigation.Id" class="avatar bg-light router-link-active"><img src="@katpost.PostAuthorNavigation.DisplayPicture" alt="..."></a></div>
+                                <div class="flex-fill">
+                                    <div class="font-weight-bold">
+                                        <a href="/u/@katpost.PostAuthorNavigation.Id" class="router-link-active">
+                                            @katpost.PostAuthorNavigation.DisplayName
+                                        </a>
+                                    </div>
+                                    <a href="/p/@katpost.Id" class="text-muted small">
+                                        @katpost.CreatedDate
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h4 class="card-title m-0 text-truncate"><a href="/p/@katpost.Id" class="text-muted">@katpost.PostTitle</a><!--!--></h4>
+                        </div>
+                        <div class="card-body py-5 card-attrs">
+                            <button type="button" class="btn btn-outline-secondary">
+                                ▲   <span class="ml-10">@katpost.PositiveVoteCount</span>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary">
+                                ▼   <span class="ml-10">@katpost.NegativeVoteCount</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <style>
+                    .gooey {
+                        opacity: 0;
+                        height: 0;
+                        margin: 0;
+                        padding-left: 86%;
+                        min-height: auto;
+                    }
+                </style>
+            </ItemContent>
+        </Virtualize>
+
+    </div>
+}
+
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+    int section = 4;
+    public int PostsCount { get; set; } = 0;
+    //public List<KatPost> listKatPosts { get; set; } = new List<KatPost>();
+    public bool isToolExpanded = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        PostsCount = await _katSectionShow.GetPostCount(section);
+        //listKatPosts = await _katPostShow.GetPost(1);
+        //listKatPosts = LoadPostForFuckSake(5);
+    }
+
+    private async ValueTask<ItemsProviderResult<KatPost>> LoadPostForFuckSake(ItemsProviderRequest request)
+    {
+        var numPost = Math.Min(request.Count, PostsCount - request.StartIndex);
+
+        var listKatPosts = await _katPostShow.GetPostFromTo(request.StartIndex, numPost, section);
+
+        return new ItemsProviderResult<KatPost>(listKatPosts, PostsCount);
+
+    }
+
+    private void NavigateToChat()
+    {
+        _navigationManager.NavigateTo("/chat");
+    }
+}

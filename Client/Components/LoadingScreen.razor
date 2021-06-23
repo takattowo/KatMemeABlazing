@@ -1,0 +1,23 @@
+﻿@if (isLoaded)
+{
+    @ChildContent
+}
+else
+{
+<div style="position:absolute; top:30vh; width:100%; text-align:center">
+    <p>o(≧◡≦)/ Stay chill!</p>
+</div>
+}
+
+@code {
+    bool isLoaded;
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(292); // TODO actual initialization job
+        isLoaded = true;
+    }
+}

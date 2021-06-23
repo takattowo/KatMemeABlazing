@@ -1,50 +1,58 @@
-﻿@page "/profile"
+﻿@page "/profilesetting"
+@page "/profile"
 @using KatMemeABlazing.Shared.Models
 @inject KatUserUpdate _katUserUpdate
 @inject NavigationManager _navigationManager
 @using System.Security.Claims
+@using System.IO
+@inject HttpClient client
+@using BlazorInputFile
+
+
 <div class="katleft">
-    <div class="card" keep-alive="">
+    <EditForm Model="@_katUserUpdate" OnValidSubmit="@SaveToServer" class="card" keep-alive>
         <h5 class="card-header bg-transparent py-15">
             Profile
         </h5>
         <div class="card-body">
             <span>
                 <div class="row">
-                    <div class="mb-15 col-md-6"><span><input type="text" name="fn" @bind-value="_katUserUpdate.DisplayName" placeholder="Display name" class="form-control touched pristine required" spellcheck="false" data-ms-editor="true"></span></div>
-                    <div class="mb-15 col-md-6"><span><input type="text" name="ln" placeholder="Test field 2" class="form-control untouched pristine required" spellcheck="false" data-ms-editor="true"></span></div>
+                    <div class="mb-15 col-md-6"><span><InputText name="fn" @bind-Value="_katUserUpdate.DisplayName" placeholder="Display name" class="form-control touched pristine required" spellcheck="false" data-ms-editor="true" /></span></div>
+                    <div class="mb-15 col-md-6" style="max-height: 100px; text-align-last: left;">
+                        <BlazorInputFile.InputFile OnChange="HandleSelect" style="padding-left: 110px; position: absolute;"></BlazorInputFile.InputFile>
+                        <img src="@DisplayPicture" style="height: 100px;" />
+
+                    </div>
                 </div>
                 <div class="mb-15">
                     <div class="d-flex">
-                        <div class="form-check mr-30"><input type="radio" id="KOB3B3" name="gen" value="0" class="form-check-input"> <label for="KOB3B3" class="form-check-label">Test 1</label></div>
-                        <div class="form-check mr-30"><input type="radio" id="WSJL8K" value="1" name="gen" class="form-check-input"> <label for="WSJL8K" class="form-check-label">Test 2</label></div>
-                        <div class="form-check mr-30"><input type="radio" id="CG6LSH" value="2" name="gen" class="form-check-input"> <label for="CG6LSH" class="form-check-label">Test 3</label></div>
+                        <div class="form-check mr-30"><input type="radio" name="gen" value="0" class="form-check-input"> <label class="form-check-label">Test 1</label></div>
+                        <div class="form-check mr-30"><input type="radio" value="1" name="gen" class="form-check-input"> <label class="form-check-label">Test 2</label></div>
+                        <div class="form-check mr-30"><input type="radio" value="2" name="gen" class="form-check-input"> <label class="form-check-label">Test 3</label></div>
                     </div>
                 </div>
                 <hr class="hr-line-dashed">
                 <div class="row">
-                    <div class="col-md-6 mb-15"><input type="text" name="co" placeholder="Country" class="form-control" spellcheck="false" data-ms-editor="true"></div>
-                    <div class="col-md-6 mb-15"><input type="text" name="ct" placeholder="City" class="form-control" spellcheck="false" data-ms-editor="true"></div>
+                    <div class="col-md-6 mb-15"><InputText name="co" @bind-Value="_katUserUpdate.Country" placeholder="Country" class="form-control" spellcheck="false" data-ms-editor="true" /></div>
+                    <div class="col-md-6 mb-15"><input name="ct" placeholder="City (test - no database)" class="form-control" spellcheck="false" data-ms-editor="true" /></div>
                 </div>
-                <div class="mb-15"><input name="add" placeholder="Address" class="form-control" spellcheck="false" data-ms-editor="true"></div>
+                <div class="mb-15"><InputText name="add" @bind-Value="_katUserUpdate.CustomStatus" placeholder="Custom status" class="form-control" spellcheck="false" data-ms-editor="true" /></div>
                 <div class="mb-15">
-                    <div class="input-group"><input type="email" @bind-value="_katUserUpdate.Email" disabled="disabled" name="mail" placeholder="_katUserUpdate.Email" class="form-control"> <button type="button" class="btn btn-primary">Change</button></div>
+                    <div class="input-group"><InputText type="email" @bind-Value="_katUserUpdate.Email" disabled=@isAbleToChangeEmail name="mail" class="form-control" /> <button type="button" @onclick="EnableEmail" class="btn btn-primary">Change</button></div>
                 </div>
-                <div class="mb-15"><button type="button" class="btn btn-primary">Save</button></div>
+                <div class="mb-15"><button type="submit" class="btn btn-primary">Save</button></div>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                @_katUserUpdate.Message
             </span>
         </div>
-    </div>
+    </EditForm>
 </div>
 
-<div class="katright"><div class="card">
-    <div class="list-group list-group-flush">
-        <a href="/my/profile" aria-current="page" class="list-group-item active router-link-active">Profile</a> <a href="/my/privacy" class="list-group-item">Privacy and safety</a> <a href="/my/password" class="list-group-item">
-            Change password
-        </a> <a href="/my/2fa" class="list-group-item">
-            Two-factor authentication
-        </a> <a href="/my/security" class="list-group-item">Security</a>
-    </div>
-</div></div>
+<div class="katright">
+    <ProfileMenu />
+</div>
+
 @code {
     [CascadingParameter]
     public Task<AuthenticationState> authenticationState { get; set; }
@@ -61,9 +69,87 @@
             _katUserUpdate.Id = Convert.ToInt32(ywouldudodis);
             await _katUserUpdate.GetProfile();
             //Console.WriteLine(ywouldudodis);
+            DisplayPicture = _katUserUpdate.DisplayPicture;
+
+            if (string.IsNullOrWhiteSpace(DisplayPicture))
+            {
+                DisplayPicture = "https://i.pinimg.com/736x/99/ff/3e/99ff3e5d48d004c0e72fb3e3b67a3430.jpg";
+            }
         }
         else
             _navigationManager.NavigateTo("login");
 
+    }
+
+    private async Task SaveToServer()
+    {
+        //var payload = new KatPostP { Files = fileData };
+        //await client.PostAsJsonAsync("/fileupload/saveprofilepicture", payload);
+        //_katUserUpdate.DisplayPicture = "";
+        await client.PostAsync("upload", content);
+        await _katUserUpdate.UpdateSucc();
+        if (!string.IsNullOrEmpty(_katUserUpdate.DisplayPicture))
+            DisplayPicture = _katUserUpdate.DisplayPicture;
+        //_katUserUpdate.Message = "Profile updated successfully~ ლ(╹◡╹ლ)";
+        await Task.Delay(590);
+        _katUserUpdate.Message = "";
+        if (!isAbleToChangeEmail)
+        {
+            await client.GetAsync("katuser/logoutuser");
+            _navigationManager.NavigateTo("/", true);
+        }
+
+    }
+
+    bool isAbleToChangeEmail = true;
+
+    public void EnableEmail()
+    {
+        isAbleToChangeEmail = !isAbleToChangeEmail;
+        if (!isAbleToChangeEmail)
+            _katUserUpdate.Message = "Changing Email address will sign you out.";
+        else
+            _katUserUpdate.Message = "";
+    }
+
+    public string DisplayPicture { get; set; }
+
+    List<FileData> fileData = new List<FileData>();
+    MultipartFormDataContent content { get; set; }
+    private async Task HandleSelect(IFileListEntry[] files)
+    {
+        var file = files.FirstOrDefault();
+        if (file != null)
+        {
+            var ms = new MemoryStream();
+            await file.Data.CopyToAsync(ms);
+
+            DisplayPicture = $"data:image/png;base64,{Convert.ToBase64String(ms.GetBuffer())}";
+
+            _katUserUpdate.DisplayPicture = "/Upload/" + file.Name;
+            content = new MultipartFormDataContent
+        {
+                {new ByteArrayContent(ms.GetBuffer()), "\"wwwroot\\Upload\"", file.Name }
+            };
+            //await client.PostAsync("upload", content);
+        }
+
+        @* Byte[] bytes = File.ReadAllBytes(file);
+            String file = Convert.ToBase64String(bytes);
+
+            var buffers = ms.GetBuffer());
+            await file.OpenReadStream().ReadAsync(buffers);
+            string imageType = file.ContentType;
+            string imgUrl = $"data:{imageType};base64,{Convert.ToBase64String(buffers)}";
+            PicUrl = imgUrl;*@
+
+        @*foreach (IBrowserFile imgFile in inputFileChangeEventArgs.GetMultipleFiles())
+            {
+                var buffers = new byte[imgFile.Size];
+                await imgFile.OpenReadStream().ReadAsync(buffers);
+                string imageType = imgFile.ContentType;
+                string imgUrl = $"data:{imageType};base64,{Convert.ToBase64String(buffers)}";
+                PicUrl = imgUrl;
+            }*@
     }
 }

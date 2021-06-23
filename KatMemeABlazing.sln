@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.31321.278
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KatMemeABlazing.Server", "Server\KatMemeABlazing.Server.csproj", "{F2579BC5-0089-477A-9C3F-5C06D1356883}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KatMemeABlazing.Client", "Client\KatMemeABlazing.Client.csproj", "{EE3811A9-B6F5-45AB-BF55-0F72318BA4ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KatMemeABlazing.Client", "Client\KatMemeABlazing.Client.csproj", "{EE3811A9-B6F5-45AB-BF55-0F72318BA4ED}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KatMemeABlazing.Shared", "Shared\KatMemeABlazing.Shared.csproj", "{25B0F720-0B21-4A49-95EF-E221D1B2DD21}"
 EndProject

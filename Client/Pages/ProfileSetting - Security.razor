@@ -1,0 +1,26 @@
+﻿@page "/profilesetting/security"
+@using KatMemeABlazing.Shared.Models
+@inject KatUserUpdate _katUserUpdate
+@inject NavigationManager _navigationManager
+@using System.Security.Claims
+@using System.IO
+@inject HttpClient client
+
+
+<div class="katleft">
+    <div class="card" keep-alive="">
+        <h5 class="card-header bg-transparent py-15">Security</h5> <div class="card-body">
+            <div class="mb-15"><div class="font-weight-bold">Sign out of all sessions</div> <p>This will sign you out of sessions in other browsers or on other computers.</p> <button type="button" disabled="disabled" class="btn btn-outline-primary">Sign out</button></div> <hr> <div class="mb-15">
+                <div class="font-weight-bold">Deactivate account</div> <p>
+                    Deactivating your account will remove it from System within a few minutes. You can sign back in
+                    anytime
+                    to reactivate your account and restore its content.
+                </p> <button type="button" disabled="disabled" class="btn btn-outline-danger">Deactivate account</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="katright">
+    <ProfileMenu />
+</div>

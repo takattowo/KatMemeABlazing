@@ -1,0 +1,72 @@
+﻿@page "/register"
+@using KatMemeABlazing.Shared.Models
+@inject KatUser _katUserLogin
+@inject NavigationManager _navigationManager
+@inject HttpClient client
+@inject KatUserLogin _katUserLogin2
+
+<AuthorizeView>
+    <Authorized>
+        <style>
+            .page-login-full {
+                display: none !important;
+            }
+        </style>
+        @RedirectToHot();
+    </Authorized>
+
+</AuthorizeView><div style="background-image: url(Upload/a3ENM11_460swp.png);width: 100%;height: 100%;position: fixed;background-size: cover;left: 0;filter: blur(8px);-webkit-filter: blur(8px);top: 0;" upload=""></div>
+<EditForm Model="@_katUserLogin" OnValidSubmit="@SaveToServer" style="width: 50%;margin: 0 auto;" keep-alive>
+    <div class="page-login-full">
+        <div class="card mx-auto mt-100 card-form">
+            <div class="card-body">
+                <div class="mb-15 text-center brand"><a href="/" class="avatar avatar-xl bg-primary text-white router-link-active"><i class="fa fa-gitlab "></i></a></div> <div class="mb-15"><h2 class="text-center">KatMeMe</h2></div> <span>
+
+                    <div> </div> <div class="mb-15"><span><InputText data-ms-editor="true" @bind-Value="_katUserLogin.Email" placeholder="E-mail" type="email" class="form-control untouched pristine required" /></span></div> <div class="mb-15"><span><InputText data-ms-editor="true" @bind-Value="_katUserLogin.Password" placeholder="Password" type="password" class="form-control untouched pristine required" /></span></div> <div class="mb-15"><span><InputText type="password" data-ms-editor="true" @bind-Value="_katUserLogin.ConfirmPassword" placeholder="Confirm Password" class="form-control untouched pristine required" /></span></div> <div class="mb-15">
+                        <button type="submit" class="btn btn-primary btn-block" disabled=@isAbleToRegister>
+                            Sign up
+                        </button>
+                    </div> <div class="mb-15">
+                        You have an account? <a href="/login" class="text-primary"> Login!</a>
+                    </div>     <DataAnnotationsValidator />
+                    <ValidationSummary />
+                    <div class="mb-15 text-muted text-center">
+                        By clicking submit, you are gay.
+
+                    </div>
+
+                </span>
+            </div>
+        </div>
+    </div>
+</EditForm>
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+    string msg { get; set; } = "";
+
+    //private KatUser katUserNew = new KatUser();
+
+    bool @isAbleToRegister = false;
+
+
+    private async Task SaveToServer()
+    {
+        if (_katUserLogin != null)
+        {
+            String[] name = _katUserLogin.Email.Split(new[] { '@' });
+            _katUserLogin.DisplayName = name[0];
+            _katUserLogin.JoinedSource = "web";
+            _katUserLogin.JoinedDate = DateTime.Now;
+
+            await client.PostAsJsonAsync<KatUser>("katuser/create", _katUserLogin);
+            await Task.Delay(500);
+            _navigationManager.NavigateTo("/login", true);
+        }
+    }
+
+    public async Task RedirectToHot()
+    {
+        //_navigationManager.NavigateTo("/", true);
+    }
+}

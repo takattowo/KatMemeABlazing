@@ -1,0 +1,123 @@
+﻿@page "/u/{uId:int}"
+@using KatMemeABlazing.Shared.Models
+@inject KatUserUpdate _katUserView
+@inject KatPostShow _katPostShow
+@inject NavigationManager _navigationManager
+@using System.Security.Claims
+@using System.IO
+@inject HttpClient client
+
+
+@if (isExisted)
+{
+    <div class="viesprof card">
+        <div class="real_avatar" alt="katto's avatar">
+
+            <img loading="lazy" src="@_katUserView.DisplayPicture" alt="katto" style="max-width: 900px; max-height: 900px">
+
+        </div><br><span class="viesnamep">@_katUserView.DisplayName</span>
+    </div><div class="borderwrap profile-view" style=" background: #3445b4; color: #fff; padding: 10px 20px; text-align: center; margin-top: 17px; border-radius: 5px; ">
+        @_katUserView.CustomStatus
+    </div>
+
+    <div class="py-15 kat1">
+        <div keep-alive="" class="thumb-view ">
+            <div class="row">
+
+                <Virtualize Items="listKatPosts" Context="katpost">
+                    <ItemContent>
+                        <div class="col-xl-4 col-lg-6 col-sm-12">
+                            <div class="card mb-15">
+                                <div class="card-body clearfix">
+                                    <div class="d-flex align-middle">
+                                        <div class="pr-10"><a href="/r/" class="avatar bg-light router-link-active" aria-label="..."><img src="@_katUserView.DisplayPicture" alt="..."></a></div>
+                                        <div class="flex-fill">
+                                            <div class="font-weight-bold">
+                                                <a class="router-link-active">
+                                                    @_katUserView.DisplayName
+                                                </a>
+                                            </div>
+                                            <a href="/p/@katpost.Id" class="text-muted small">
+                                                @katpost.CreatedDate
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>                          
+                                <div class="card-body">
+                                    <h2 class="card-title m-0 text-truncate">
+                                        <p class="small">@katpost.PostTitle</p>
+                                    </h2>
+                                    @if (katpost.PostSectionId != 4)
+                                    {
+                                        <a href="/p/@katpost.Id" class="profile-view-post" title="@katpost.PostTitle">
+                                            <img src="@katpost.PostImage" style="width: 100%" alt="...">
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <p class="small">@katpost.PostContent</p>
+                                    }
+
+
+                                </div>
+                                <div class="card-body py-5 card-attrs">
+                                    <button type="button" class="btn btn-outline-secondary">
+                                        ▲   <span class="ml-10">@katpost.PositiveVoteCount</span>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary">
+                                        ▼   <span class="ml-10">@katpost.NegativeVoteCount</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </ItemContent>
+                </Virtualize>
+
+            </div>
+        </div>
+    </div>
+
+}
+
+
+
+<!--!-->
+
+
+
+@code {
+    [Parameter]
+    public int uId { get; set; }
+
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+    public bool isExisted = false;
+
+
+    public List<KatPost> listKatPosts { get; set; } = new List<KatPost>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+
+            await _katUserView.GetProfile(uId);
+
+            listKatPosts = await _katPostShow.GetPostFromUser(uId);
+        }
+        catch
+        {
+            _navigationManager.NavigateTo("404");
+        }
+
+        if (_katUserView == null)
+        {
+            
+        }
+        else
+            isExisted = true;
+
+    }
+
+}
+

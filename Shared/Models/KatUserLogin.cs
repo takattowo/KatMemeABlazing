@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -27,7 +28,15 @@ namespace KatMemeABlazing.Shared.Models
             await _httpClient.PostAsJsonAsync<KatUser>("katuser/loginuser", this);
         }
 
+        [Required(ErrorMessage = "Password is required.")]
         public string Password { get; set; }
+        [Required(ErrorMessage = "Confirmation Password is required.")]
+        [Compare("Password", ErrorMessage = "Password and confirmation one aint matched.")]
+        public string ConfirmPassword { get; set; }
+
+        [Required]
+        [DataType(DataType.EmailAddress)]
+        [EmailAddress]
         public string Email { get; set; }
         public string AccountState { get; set; }
 

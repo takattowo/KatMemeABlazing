@@ -1,0 +1,123 @@
+﻿@page "/reporting"
+@using KatMemeABlazing.Shared.Models
+@inject KatReportShow _katReportShow
+@inject HttpClient client
+@inject NavigationManager _navigationManager
+@using System.Security.Claims
+
+<div class="card mb-15"><div class="card-body clearfix">Moderator panel</div></div>
+
+@if (isMod)
+{
+    <div class="card">
+        <div class="card-header bg-transparent py-15">Lastest reports</div>
+
+        <div class="table-responsive">
+            <table class="table">
+
+                <thead>
+                    <tr>
+                        <th>Reason</th>
+                        <th>Post ID</th>
+                        <th>Report ID</th>
+                        <th class="text-right">Last reported at</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <Virtualize Items="listReports" Context="katreport">
+                        <ItemContent>
+                            <tr>
+                                <td>
+                                    @katreport.Reason
+                                </td>
+
+                                <td>
+                                    @katreport.PostId
+                                </td>
+
+                                <td>
+                                    @katreport.Id
+                                </td>
+
+                                <td class="text-right">
+                                    @katreport.CreatedDate
+                                </td>
+                                <td class="text-center">
+                                    @if (katreport.Isprocessed == null)
+                                    {
+                                        <span class="badge badge-info">Waiting</span>
+                                    }
+                                    else if (katreport.Isprocessed == false)
+                                    {
+                                        <span class="badge badge-warning">Ignored</span>
+                                    }
+                                    else if (katreport.Isprocessed == true)
+                                    {
+                                        <span class="badge badge-danger">Deleled</span>
+                                    }
+
+                                </td>
+
+                                <td class="text-right">
+                                    <div class="dropdown">
+                                        <button class="btn btn-default btn-sm btn-icon btn-transparent font-xl" type="button" id="d350ad" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="mdi mdi-dots-horizontal"></i>
+                                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="d350ad">
+                                                <a class="dropdown-item" href="#">View</a>
+                                                <a class="dropdown-item" href="#">Ignore</a>
+                                                <a class="dropdown-item" href="#">Detele</a>
+                                            </div>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ItemContent>
+                    </Virtualize>
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@code {
+
+    private bool isMod = false;
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+
+    public List<KatReport> listReports { get; set; } = new List<KatReport>();
+    public bool isToolExpanded = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authie = await authenticationState;
+        var u = authie.User;
+
+        if (u.Identity.IsAuthenticated)
+        {
+            var claim = u.FindFirst(c => c.Type == ClaimTypes.NameIdentifier);
+            string ywouldudodis = claim?.Value;
+            int checkid = Convert.ToInt32(ywouldudodis);
+            if (checkid == 1)
+            {
+                listReports = await _katReportShow.GetReport();
+                isMod = true;
+            }
+            else
+                _navigationManager.NavigateTo("");
+        }
+        else
+            _navigationManager.NavigateTo("login");
+
+
+    }
+
+    private void NavigateToChat()
+    {
+        _navigationManager.NavigateTo("/chat");
+    }
+}

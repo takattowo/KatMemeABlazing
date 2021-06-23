@@ -1,0 +1,152 @@
+﻿@page "/test"
+@using KatMemeABlazing.Shared.Models
+@inject NavigationManager _navigationManager
+
+     <div class="katleft">
+         <button @onclick="@GeneratePost" type="button" aria-label="Search" role="button" class="btn btn-primary btn-search" style="margin-bottom: 10px;">
+                Generate 50000 posts
+         </button><br/>
+         <LoadingSpinner />
+         @if (PostsCount > 0)
+         {
+             <Virtualize ItemsProvider="LoadPostForFuckSake" Context="katpost">
+                 <ItemContent>
+                     <div class="card mb-15">
+                         <div class="card-body clearfix">
+                             <div class="d-flex align-middle">
+                                 <div class="pr-10">
+                                     <a class="avatar bg-light" aria-label="...">
+
+                                         <img src="https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557216667.6148_TuNebU_100x100wp.webp" alt="...">
+
+                                     </a>
+                                 </div>
+                                 <div class="flex-fill">
+                                     <div class="font-weight-bold title">
+                                         <a class="" title="@katpost.PostTitle">
+                                             @katpost.PostTitle
+                                         </a>
+                                     </div>
+                                     <a class="text-muted small">
+                                         This is a test
+
+
+                                     </a>
+                                 </div>
+                                 <div class="card-controls">
+                                     <div class="dropdown">
+                                         <a data-toggle="dropdown" @onclick="() => isToolExpanded = !isToolExpanded" aria-label="More..." aria-haspopup="true" aria-expanded="false" class="btn"><i class="fa fa-ellipsis-v"></i></a>
+                                         @if (isToolExpanded)
+                                         {
+                                             <div role="menu" aria-labelledby="60ab52968531ce7e95df266e" class="dropdown-menu dropdown-menu-right show" x-placement="bottom-end" style="position: absolute; transform: translate3d(0px, 38px, 0px); top: 0px; left: 0px; will-change: transform;">
+                                                 <a data-toggle="modal" data-target="#share" role="menuitem" class="dropdown-item">
+                                                     Share it
+                                                 </a> <!---->    <div class="dropdown-divider"></div> <a data-toggle="modal" data-target="#claim" href="#" role="menuitem" class="dropdown-item">
+                                                     Report
+                                                 </a>
+                                             </div>
+                                         }
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="card-body html-content">
+                             <div class="card-text">@katpost.PostContent</div>
+                         </div>
+                         <div class="postview"><a class="" title="@katpost.PostTitle"><img alt="@katpost.PostTitle" class="img-fluid w-full" src="@katpost.PostImage"></a></div>
+                         <div class="card-body py-5 card-attrs">
+                             <div class="float-right">
+                                 <button type="button" data-toggle="modal" data-target="#claim" class="btn btn-outline-secondary"><i class="fa fa-exclamation-triangle"></i></button>
+
+                             </div>
+                             <button type="button" class="btn btn-outline-secondary">
+                                 ▲   @if (@katpost.PositiveVoteCount == null)
+                                 {<span class="ml-10">0</span> }
+                                 else
+                                 { <span class="ml-10">@katpost.PositiveVoteCount</span>}
+                             </button>
+                             <button type="button" class="btn btn-outline-secondary">
+                                 ▼
+                                 @if (@katpost.NegativeVoteCount == null)
+                                 {<span class="ml-10">0</span> }
+                                 else
+                                 { <span class="ml-10">@katpost.NegativeVoteCount</span>}
+                             </button>
+                         </div>
+                     </div>
+
+                     <style>
+                         .gooey {
+                             opacity: 0;
+                             height: 0;
+                             margin: 0;
+                             min-height: auto;
+                         }
+                     </style>
+                 </ItemContent>
+                 <Placeholder>
+                     <div class="card mb-15"><div class="card-body clearfix"><div class="d-flex align-middle"><div class="pr-10"><a class="avatar bg-light"></a></div></div></div></div>
+                 </Placeholder>
+             </Virtualize>
+         }
+     </div>
+
+<div class="katright">
+    <Ads3 />
+    <DiscordWidget />
+</div>
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+    int section = 3;
+    int PostsCount = 1;
+    public List<KatPost> listKatPosts { get; set; } = new List<KatPost>();
+
+    private void GeneratePost()
+    {
+        listKatPosts = GeneratePosta(1, 50000);
+        PostsCount = 50000;
+    }
+
+    public List<KatPost> GeneratePosta(int numba, int nabum)
+    {
+        var sax = new List<KatPost>();
+        for (int i = numba; i < numba + nabum; i++)
+        {
+            sax.Add(new KatPost()
+            {
+                Id = i + 1,
+                PostContent = "",
+                NegativeVoteCount = 0,
+                PositiveVoteCount = 0,
+                PostTitle = "Test post number " + i,
+                PostImage = "/Upload/darkrklomao.png"
+            });
+        }
+        return sax;
+    }
+
+    public bool isToolExpanded = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        listKatPosts = GeneratePosta(0, 1);
+    }
+
+    ValueTask<ItemsProviderResult<KatPost>> LoadPostForFuckSake(ItemsProviderRequest request)
+    {
+        var numPost = Math.Min(request.Count, PostsCount - request.StartIndex);
+
+        var listKatPosts = GeneratePosta(request.StartIndex, PostsCount);
+        var resut = new ItemsProviderResult<KatPost>(listKatPosts, PostsCount);
+        return ValueTask.FromResult(resut);
+
+    }
+
+    private void NavigateToChat()
+    {
+        _navigationManager.NavigateTo("/chat");
+    }
+}

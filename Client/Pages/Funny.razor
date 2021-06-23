@@ -1,0 +1,164 @@
+﻿@page "/funny"
+@using KatMemeABlazing.Shared.Models
+@inject KatPostShow _katPostShow
+@inject KatSectionShow _katSectionShow
+@inject NavigationManager _navigationManager
+@inject HttpClient client
+@*<Virtualize ItemsProvider="LoadPostForFuckSake" Context="post">
+        <ItemContent>
+            <div style="height: 50px;">
+                <a href="/ok"
+                   class="list-group-item list-group-item-action flex-column align-items-start bold-text">
+                    @post.PostTitle <span> </span> <img src="@post.PostImage" style="height: 100px;" />
+                </a>
+            </div>
+        </ItemContent>
+        <Placeholder>
+            <div style="height: 50px;">
+                <p>Loading...</p>
+            </div>
+        </Placeholder>
+    </Virtualize>*@
+
+@*@foreach (KatPost katpost in listKatPosts)
+    {
+        <div style = "height: 50px;" >
+        <a href="/ok"
+           class="list-group-item list-group-item-action flex-column align-items-start bold-text">
+            @katpost.PostTitle <span> </span> <img src="@katpost.PostImage" style="height: 100px;" />
+        </a>
+        </div>
+    }*@
+
+
+
+
+<div class="katleft">
+    <LoadingSpinner/>
+    <div class="card mb-15"><div class="card-body clearfix"><img src="@_katSectionShow.SectionPicture" alt="@_katSectionShow.SectionName" style="max-height: 50px;padding-right: 8px;"> @_katSectionShow.SectionDescription</div></div>
+    @if (PostsCount > 0)
+    {
+        <Virtualize ItemsProvider="LoadPostForFuckSake" Context="katpost" OverscanCount="4">
+            <ItemContent>
+                <div class="card mb-15">
+                    <div class="card-body clearfix">
+                        <div class="d-flex align-middle">
+                            <div class="pr-10">
+                                <a href="/u/@katpost.PostAuthor" class="avatar bg-light" aria-label="...">
+
+                                    <img src="@katpost.PostAuthorNavigation.DisplayPicture" alt="...">
+
+                                </a>
+                            </div>
+                            <div class="flex-fill">
+                                <div class="font-weight-bold title">
+                                    <a href="/p/@katpost.Id" class="" title="@katpost.PostTitle">
+                                        @katpost.PostTitle
+                                    </a>
+                                </div>
+                                <a href="/@_katSectionShow.SectionName" class="text-muted small">
+                                    <img src="@_katSectionShow.SectionPicture" alt="..."> @_katSectionShow.SectionName
+
+
+                                </a>
+                            </div>
+                            <div class="card-controls">
+                                <div class="dropdown">
+                                    <a data-toggle="dropdown" @onclick="() => isToolExpanded = !isToolExpanded" aria-label="More..." aria-haspopup="true" aria-expanded="false" class="btn"><i class="fa fa-ellipsis-v"></i></a>
+                                    @if (isToolExpanded)
+                                    {
+                                        <div role="menu" aria-labelledby="60ab52968531ce7e95df266e" class="dropdown-menu dropdown-menu-right show" x-placement="bottom-end" style="position: absolute; transform: translate3d(0px, 38px, 0px); top: 0px; left: 0px; will-change: transform;">
+                                            <a data-toggle="modal" data-target="#share" role="menuitem" class="dropdown-item">
+                                                Share it
+                                            </a> <!---->    <div class="dropdown-divider"></div> <a data-toggle="modal" data-target="#claim" href="#" role="menuitem" class="dropdown-item">
+                                                Report
+                                            </a>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body html-content">
+                        <div class="card-text">@katpost.PostContent</div>
+                    </div>
+                    <div class="postview"><a href="/p/@katpost.Id" class="" title="@katpost.PostTitle">
+    <div class="peepee1">
+        <img alt="@katpost.PostTitle" class="img-fluid w-full" src="@katpost.PostImage">
+
+    </div>
+</a>
+                    </div>
+                        <div class="card-body py-5 card-attrs">
+                            <div class="float-right">
+                                <button type="button" data-toggle="modal" data-target="#claim" class="btn btn-outline-secondary"><i class="fa fa-exclamation-triangle"></i></button>
+
+                            </div>
+                            <button type="button" class="btn btn-outline-secondary">
+                                ▲   @if (@katpost.PositiveVoteCount == null)
+                                {<span class="ml-10">0</span> }
+                                else
+                                { <span class="ml-10">@katpost.PositiveVoteCount</span>}
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary">
+                                ▼
+                                @if (@katpost.NegativeVoteCount == null)
+                                {<span class="ml-10">0</span> }
+                                else
+                                { <span class="ml-10">@katpost.NegativeVoteCount</span>}
+                            </button>
+                        </div>
+                    </div>
+                <style>
+                    .gooey {
+                        opacity: 0;
+                        height: 0;
+                        margin: 0;
+                        min-height: auto;
+                    }
+                </style>
+            </ItemContent>
+            <Placeholder>
+                <div class="card mb-15"><div class="card-body clearfix"><div class="d-flex align-middle"><div class="pr-10"><a class="avatar bg-light"></a></div></div></div></div>
+            </Placeholder>
+        </Virtualize>}
+
+</div>
+
+<div class="katright">
+    <Ads2 />
+    <DiscordWidget />
+</div>
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+    int section = 1;
+    public int PostsCount { get; set; } = 0;
+    //public List<KatPost> listKatPosts { get; set; } = new List<KatPost>();
+    public bool isToolExpanded = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        PostsCount = await _katSectionShow.GetPostCount(section);
+        await _katSectionShow.GetSection(section);
+        //listKatPosts = await _katPostShow.GetPost(1);
+        //listKatPosts = LoadPostForFuckSake(5);
+    }
+
+    private async ValueTask<ItemsProviderResult<KatPost>> LoadPostForFuckSake(ItemsProviderRequest request)
+    {
+        var numPost = Math.Min(request.Count, PostsCount - request.StartIndex);
+        
+        var listKatPosts = await _katPostShow.GetPostFromTo(request.StartIndex, numPost, section);
+        
+        return new ItemsProviderResult<KatPost>(listKatPosts, PostsCount);
+
+    }
+
+    private void NavigateToChat()
+    {
+        _navigationManager.NavigateTo("/chat");
+    }
+}

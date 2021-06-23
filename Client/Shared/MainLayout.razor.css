@@ -1,0 +1,11 @@
+.badgetest {
+    position: absolute;
+    color: #fff;
+    border-radius: 50% !important;
+    width: 1rem;
+    height: 1rem;
+    padding: .20em .2em;
+    text-align: center;
+    right: 0;
+    top: 5px;
+}

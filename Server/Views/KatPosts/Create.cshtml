@@ -1,0 +1,71 @@
+﻿@model KatMemeABlazing.Server.Models.KatPost
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>KatPost</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="PostSectionId" class="control-label"></label>
+                <select asp-for="PostSectionId" class ="form-control" asp-items="ViewBag.PostSectionId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="PostAuthor" class="control-label"></label>
+                <select asp-for="PostAuthor" class ="form-control" asp-items="ViewBag.PostAuthor"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="PostTitle" class="control-label"></label>
+                <input asp-for="PostTitle" class="form-control" />
+                <span asp-validation-for="PostTitle" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PostImage" class="control-label"></label>
+                <input asp-for="PostImage" class="form-control" />
+                <span asp-validation-for="PostImage" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PostContent" class="control-label"></label>
+                <input asp-for="PostContent" class="form-control" />
+                <span asp-validation-for="PostContent" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PositiveVoteCount" class="control-label"></label>
+                <input asp-for="PositiveVoteCount" class="form-control" />
+                <span asp-validation-for="PositiveVoteCount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NegativeVoteCount" class="control-label"></label>
+                <input asp-for="NegativeVoteCount" class="form-control" />
+                <span asp-validation-for="NegativeVoteCount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IsPromoted" class="control-label"></label>
+                <input asp-for="IsPromoted" class="form-control" />
+                <span asp-validation-for="IsPromoted" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedDate" class="control-label"></label>
+                <input asp-for="CreatedDate" class="form-control" />
+                <span asp-validation-for="CreatedDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

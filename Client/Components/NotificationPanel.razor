@@ -1,0 +1,144 @@
+﻿@using System;
+@using System.Collections.Generic;
+@using System.Linq;
+@using System.Threading.Tasks;
+@using KatMemeABlazing.Shared.Models
+@inject HttpClient client
+@using System.Security.Claims
+@inject KatReport _katPost
+@using BlazorInputFile
+@using System.IO
+@inject NavigationManager _navigationManager
+@inject KatNotificationShow _katNotificationShow
+<style>
+    .seen {
+        background: #3445b424;
+    }
+        .seen a {
+            color: #70799a;
+        }
+    .list-group-item {
+        user-select: none;
+        -webkit-transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out;
+        transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out;
+    }
+    .list-group-item-action:focus, .list-group-item-action:hover {
+        background-color: #5e668229 !important;
+    }
+</style>
+<div class="modalfake trans" @onclick="@ModalCancel" role="dialog" tabindex="-1">
+</div>
+<div aria-labelledby="QBDX05" x-placement="bottom-end" style="position: absolute;transform: translate3d(-102px, 34px, 0px);top: 0px;left: 0px;width: 300px;will-change: transform;z-index: 9999999;opacity: 0;animation: pulsed .5s normal forwards ease-in-out;">
+    <div class="card show" style="border: 1px solid #3445b4;padding: 0;">
+        <div class="card-header" style="background: #3445b4; color: #fff; user-select: none;">
+            <strong>Notifications</strong>
+        </div>
+        <div data-scrollbar="true" tabindex="-1" style="height: 400px;overflow: hidden;outline: none;">
+            <div class="scroll-content">
+                <div>
+                    <ul class="list-group list-group-flush p-0"></ul>
+                    @if (!isMod)
+                    {
+                        <div class="spinner-grow text-danger mx-3" role="status" style="margin-top: 15px;"></div>
+                    }
+                    else
+                    {
+                        if (NotifCount == 0)
+                        {
+                            <div data-v-644ea9c9="" class="infinite-status-prompt" style="color: rgb(102, 102, 102); font-size: 14px; padding: 20px 15px; text-align:center; opacity: 0; font-size:16px; animation: pulsed .5s normal forwards ease-in-out;">Ew, nothing here!</div>
+                        }
+                        else
+                        {
+                            <Virtualize Items="listNotif" Context="katnotif">
+                                <ItemContent>
+                                    @if (katnotif.Isread != true)
+                                    {
+                                        <li class="list-group-item list-group-item-action" style="padding: .5rem; font-size: 1rem; opacity: 0; animation: pulsed .5s normal forwards ease-in-out;">
+                                            <div class="media">
+                                                <a href="/u/@katnotif.AuthorId" class="avatar mr-10">
+                                                    <img src="/Upload/bellnotifed.png" alt="...">
+                                                </a>
+                                                <a class="media-body" href="/p/@katnotif.PostId" @onclick="() => SetToSeen(katnotif.Id)">
+                                                    <div><strong>User @katnotif.PostId</strong> commented on your post <span class="text-muted small">at @katnotif.CreatedDate.ToString().Replace(" 12:00:00 AM", "")</span></div>
+                                                    
+                                                </a>
+                                            </div>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <li class="list-group-item list-group-item-action seen" style="padding: .5rem; font-size: 1rem; opacity: 0; animation: pulsed .5s normal forwards ease-in-out;">
+                                            <div class="media">
+                                                <a href="/u/@katnotif.AuthorId" class="avatar mr-10">
+                                                    <img src="/Upload/bellnotif.png" alt="...">
+                                                </a>
+                                                <a class="media-body" href="/p/@katnotif.PostId">
+                                                    <div><strong>User @katnotif.PostId</strong> commented on your post <span class="text-muted small">at @katnotif.CreatedDate.ToString().Replace(" 12:00:00 AM", "")</span></div>
+                                                </a>
+                                            </div>
+                                        </li>
+                                    }
+                                </ItemContent>
+                            </Virtualize>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private async Task SetToSeen(int id)
+    {
+        await client.PutAsJsonAsync<KatNotification>("katnotifications/updatetoseen/" + id, _katNotificationShow);
+        await Task.Delay(100);
+        StateHasChanged();
+        ModalOk();
+    }
+
+    private bool isMod = false;
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+
+    public List<KatNotification> listNotif { get; set; } = new List<KatNotification>();
+    public bool isToolExpanded = false;
+
+    [Parameter]
+    public EventCallback<bool> OnClose
+    {
+        get;
+        set;
+    }
+
+    private Task ModalCancel()
+    {
+        return OnClose.InvokeAsync(false);
+        StateHasChanged();
+    }
+    private Task ModalOk()
+    {
+        return OnClose.InvokeAsync(true);
+        StateHasChanged();
+    }
+    public int NotifCount { get; set; } = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authie = await authenticationState;
+        var u = authie.User;
+
+        if (u.Identity.IsAuthenticated)
+        {
+            var claim = u.FindFirst(c => c.Type == ClaimTypes.NameIdentifier);
+            string ywouldudodis = claim?.Value;
+            int checkid = Convert.ToInt32(ywouldudodis);
+            NotifCount = await _katNotificationShow.GetNotificationCount(checkid);
+            listNotif = await _katNotificationShow.GetNotification(checkid);
+            await Task.Delay(2000);
+            isMod = true;
+        }
+        else
+            _navigationManager.NavigateTo("login");
+    }
+}

@@ -1,5 +1,5 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
-    <a class="navbar-brand" href="">KatMeme</a>
+﻿<div classnt="top-row pl-4 navbar navbar-dark">
+    <h1><a href="" class="logo">KatMeme<span>Why so serious?</span></a></h1>  
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -7,24 +7,34 @@
 
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <ul class="nav flex-column">
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="hot" Match="NavLinkMatch.All">
+        <li class="nav-item">
+            <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
                 <span class="oi oi-home" aria-hidden="true"></span> Hot
             </NavLink>
         </li>
-        <li class="nav-item px-3">
+        <li class="nav-item">
             <NavLink class="nav-link" href="fresh">
                 <span class="oi oi-clock" aria-hidden="true"></span> Fresh
             </NavLink>
         </li>
-        <li class="nav-item px-3">
+        <li class="nav-item">
             <NavLink class="nav-link" href="funny">
-                <span class="oi oi-heart" aria-hidden="true"></span> Funny
+                <img style="max-height: 27px; padding-right: 8px; margin-top: -6px;" src="https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557376304.186_U5U7u5_100x100wp.webp" alt="Funny" /> Funny
             </NavLink>
         </li>
-        <li class="nav-item px-3">
+        <li class="nav-item">
             <NavLink class="nav-link" href="wibu">
-                <span class="oi oi-trash" aria-hidden="true"></span> Degenerated Wibu
+                <img style="max-height: 27px; padding-right: 8px; margin-top: -6px;" src="https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557216667.6148_TuNebU_100x100wp.webp" alt="Weeb" /> Weeb stuffs
+            </NavLink>
+        </li>
+        <li class="nav-item">
+            <NavLink class="nav-link" href="animal">
+                <img style="max-height: 27px; padding-right: 8px; margin-top: -6px;" src="https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557391851.3248_Za4UdA_100x100wp.webp" alt="Animal" /> Animal
+            </NavLink>
+        </li>
+        <li class="nav-item">
+            <NavLink class="nav-link" href="discussion">
+                <img style="max-height: 27px; padding-right: 8px; margin-top: -6px;" src="https://miscmedia-9gag-fun.9cache.com/images/thumbnail-facebook/1557453152.4514_U2asE8_100x100wp.webp" alt="Discussion" /> Discussion
             </NavLink>
         </li>
     </ul>

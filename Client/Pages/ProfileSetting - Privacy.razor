@@ -1,0 +1,52 @@
+﻿@page "/profilesetting/privacy"
+@using KatMemeABlazing.Shared.Models
+@inject KatUserUpdate _katUserUpdate
+@inject NavigationManager _navigationManager
+@using System.Security.Claims
+@using System.IO
+@inject HttpClient client
+
+
+<div class="katleft">
+    <div class="card" keep-alive="">
+        <h5 class="card-header bg-transparent py-15">Privacy and safety</h5> <div class="card-body">
+            <div class="mb-15">
+                <label class="font-weight-bold">Tagging</label> <div class="form-check mb-10"><input type="radio" id="rb-DJQIYDIFE" name="tag" class="form-check-input"> <label for="rb-DJQIYDIFE" class="form-check-label">Allow anyone to tag you</label></div> <div class="form-check mb-10">
+                    <input type="radio" id="rb-YXNZEIU57" name="tag" class="form-check-input"> <label for="rb-YXNZEIU57" class="form-check-label">
+                        Only allow people you follow to tag
+                        you
+                    </label>
+                </div> <div class="form-check"><input type="radio" id="rb-P5BS32VOD" name="tag" class="form-check-input"> <label for="rb-P5BS32VOD" class="form-check-label">Do not allow anyone to tag you</label></div>
+            </div> <hr class="hr-line-dashed">     <div class="mb-15">
+                <label class="font-weight-bold">Safety</label> <div class="custom-control custom-checkbox mb-10">
+                    <input type="checkbox" id="cb-4XDVHA337" class="form-check-input"> <label for="cb-4XDVHA337" class="form-check-label">
+                        Display media that may contain sensitive
+                        content
+                    </label>
+                </div> <div class="custom-control custom-checkbox">
+                    <input type="checkbox" id="cb-8ZIGF4REU" class="form-check-input"> <label for="cb-8ZIGF4REU" class="form-check-label">
+                        Mark media you post as containing material
+                        that may be sensitive
+                    </label>
+                </div>
+            </div> <div class="mb-15">
+                <label class="font-weight-bold">Search</label> <div class="custom-control custom-checkbox mb-10">
+                    <input type="checkbox" id="cb-4XDVHA337" class="form-check-input"> <label for="cb-4XDVHA337" class="form-check-label">
+                        Hide sensitive content
+                    </label> <div class="small text-muted">
+                        This prevents Tweets with potentially sensitive content from
+                        displaying in your search results.
+                    </div>
+                </div> <div class="custom-control custom-checkbox">
+                    <input type="checkbox" id="cb-8ZIGF4REU" class="form-check-input"> <label for="cb-8ZIGF4REU" class="form-check-label">
+                        Remove blocked and muted accounts
+                    </label> <div class="small text-muted">Use this to eliminate search results from accounts you’ve blocked or muted.</div>
+                </div>
+            </div> <div class="mb-15"><button type="button" disabled="disabled" class="btn btn-primary">Save</button></div>
+        </div>
+    </div>
+</div>
+
+<div class="katright">
+    <ProfileMenu />
+</div>

@@ -1,0 +1,21 @@
+﻿<div class="@NavMenuCssClass + card" @onclick="ToggleNavMenu">
+    <div class="list-group list-group-flush">
+        <a href="ProfileSetting" aria-current="page" class="list-group-item router-link-active">Profile</a> <a href="/profilesetting/privacy" class="list-group-item">Privacy and safety</a> <a href="/profilesetting/password" class="list-group-item">
+            Change password
+        </a> <a href="/profilesetting/2fa" class="list-group-item">
+            Two-factor authentication
+        </a> <a href="/profilesetting/security" class="list-group-item">Security</a>
+    </div>
+</div>
+
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "active" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

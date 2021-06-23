@@ -1,0 +1,120 @@
+﻿@using System;
+@using System.Collections.Generic;
+@using System.Linq;
+@using System.Threading.Tasks;
+@using KatMemeABlazing.Shared.Models
+@inject HttpClient client
+@using System.Security.Claims
+@inject KatReport _katPost
+@using BlazorInputFile
+@using System.IO
+@inject NavigationManager _navigationManager
+
+
+<div id="new" aria-labelledby="share" role="dialog" class="modal fade show" aria-modal="true" style="display: block;background: #000000a6;" stylent="width: 500px;position: absolute;right: 0;margin: auto;top: 61px;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Report Post</h5>
+                <button @onclick="@ModalCancel" type="button" data-dismiss="modal" aria-label="Close" class="close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>  <EditForm Model="@_katPost" OnValidSubmit="@HandleValidSubmit">
+                <div class="modal-body">
+                    <span>
+                        <div class="mb-15"></div>
+                        <div class="mb-15">
+                            <label for="cars">
+                                Choosing the right reason help us process the report as soon as possible.
+                            </label>
+                            <select @oninput="onSectionChange" class="form-control">
+                                <option value="Spam" selected="selected">Spam</option>
+                                <option value="Repost">Repost</option>
+                                <option value="Pornography">Pornography</option>
+                                <option value="Hatred and bullying">Hatred and bullying</option>
+                                <option value="Illegal activities">Illegal activities</option>
+                                <option value="Violent, gory and harmful content">Violent, gory and harmful content</option>
+                                <option value="Fake news">Fake news</option>
+                            </select>
+
+                        </div>
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="mb-15 d-flex justify-content-end">
+                            <!---->
+                            <div class="btn-group">
+                                <button type="submit" class="btn btn-primary"><!---->Submit</button>
+                                <button type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-reference="parent" class="btn btn-primary dropdown-toggle dropdown-toggle-split">
+                                    <span class="sr-only">.</span>
+                                </button>
+                            </div>
+                        </div>
+                    </span>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    public bool ShowDialog
+    {
+        get;
+        set;
+    }
+
+    bool isAbleToContent { get; set; } = false;
+
+    private void onSectionChange(ChangeEventArgs e)
+    {
+        _katPost.Reason = e.Value.ToString();
+    }
+
+    [Parameter]
+    public EventCallback<bool> OnClose
+    {
+        get;
+        set;
+    }
+
+    private Task ModalCancel()
+    {
+        return OnClose.InvokeAsync(false);
+        StateHasChanged();
+    }
+    private Task ModalOk()
+    {
+        return OnClose.InvokeAsync(true);
+        StateHasChanged();
+    }
+
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+
+    protected async Task HandleValidSubmit()
+    {
+        var authie = await authenticationState;
+        var u = authie.User;
+
+        if (u.Identity.IsAuthenticated)
+        {
+            var claim = u.FindFirst(c => c.Type == ClaimTypes.NameIdentifier);
+            string ywouldudodis = claim?.Value;
+            _katPost.AuthorId = Convert.ToInt32(ywouldudodis);
+        }
+        else
+        {
+            _katPost.AuthorId = null;
+        }
+
+        _katPost.CreatedDate = DateTime.Now;
+        _katPost.PostId = Int32.Parse(_navigationManager.Uri.Split('/').Last());
+
+        await client.PostAsJsonAsync<KatReport>("katreports/create", _katPost);
+        await Task.Delay(100);
+        StateHasChanged();
+        ModalOk();
+        //StateHasChanged();
+    }
+}

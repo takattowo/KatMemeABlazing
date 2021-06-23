@@ -1,0 +1,20 @@
+﻿@page "/profilesetting/password"
+@using KatMemeABlazing.Shared.Models
+@inject KatUserUpdate _katUserUpdate
+@inject NavigationManager _navigationManager
+@using System.Security.Claims
+@using System.IO
+@inject HttpClient client
+
+
+<div class="katleft">
+    <div class="card" keep-alive="">
+        <h5 class="card-header bg-transparent">
+            Change Password
+        </h5> <div class="card-body"><form autocomplete="off"><span><div class="mb-15"><label class="form-control-label">Old Password: </label> <span><input type="password" placeholder="Old Password" name="old" class="form-control untouched pristine required"></span></div> <div class="mb-15"><label class="form-control-label">New Password: </label> <span><input type="password" placeholder="New Password" class="form-control untouched pristine required"></span></div> <div class="mb-15"><label class="form-control-label">Re Password: </label> <span><input type="password" placeholder="New Password" class="form-control untouched pristine required"></span></div> <div class="mb-15"><button type="button" class="btn btn-primary">Save</button></div></span></form></div>
+    </div>
+</div>
+
+<div class="katright">
+    <ProfileMenu />
+</div>

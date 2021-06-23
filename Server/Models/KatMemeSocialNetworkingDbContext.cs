@@ -18,7 +18,9 @@ namespace KatMemeABlazing.Server.Models
         }
 
         public virtual DbSet<KatComment> KatComments { get; set; }
+        public virtual DbSet<KatNotification> KatNotifications { get; set; }
         public virtual DbSet<KatPost> KatPosts { get; set; }
+        public virtual DbSet<KatReport> KatReports { get; set; }
         public virtual DbSet<KatSection> KatSections { get; set; }
         public virtual DbSet<KatUser> KatUsers { get; set; }
 
@@ -62,12 +64,36 @@ namespace KatMemeABlazing.Server.Models
                 entity.HasOne(d => d.CommentAuthorNavigation)
                     .WithMany(p => p.KatComments)
                     .HasForeignKey(d => d.CommentAuthor)
-                    .HasConstraintName("FK__KatCommen__comme__3B75D760");
+                    .HasConstraintName("FK__KatCommen__comme__52593CB8");
 
                 entity.HasOne(d => d.Post)
                     .WithMany(p => p.KatComments)
                     .HasForeignKey(d => d.PostId)
-                    .HasConstraintName("FK__KatCommen__post___3A81B327");
+                    .HasConstraintName("FK__KatCommen__post___5165187F");
+            });
+
+            modelBuilder.Entity<KatNotification>(entity =>
+            {
+                entity.ToTable("KatNotification");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.AuthorId).HasColumnName("author_id");
+
+                entity.Property(e => e.CreatedDate)
+                    .HasColumnType("date")
+                    .HasColumnName("created_date");
+
+                entity.Property(e => e.Isread).HasColumnName("isread");
+
+                entity.Property(e => e.PostContent)
+                    .HasMaxLength(2083)
+                    .IsUnicode(false)
+                    .HasColumnName("post_content");
+
+                entity.Property(e => e.PostId).HasColumnName("post_id");
+
+                entity.Property(e => e.UserId).HasColumnName("user_id");
             });
 
             modelBuilder.Entity<KatPost>(entity =>
@@ -94,7 +120,6 @@ namespace KatMemeABlazing.Server.Models
                     .HasColumnName("post_content");
 
                 entity.Property(e => e.PostImage)
-                    .HasMaxLength(2083)
                     .IsUnicode(false)
                     .HasColumnName("post_image");
 
@@ -109,12 +134,34 @@ namespace KatMemeABlazing.Server.Models
                 entity.HasOne(d => d.PostAuthorNavigation)
                     .WithMany(p => p.KatPosts)
                     .HasForeignKey(d => d.PostAuthor)
-                    .HasConstraintName("FK__KatPost__post_au__37A5467C");
+                    .HasConstraintName("FK__KatPost__post_au__4E88ABD4");
 
                 entity.HasOne(d => d.PostSection)
                     .WithMany(p => p.KatPosts)
                     .HasForeignKey(d => d.PostSectionId)
-                    .HasConstraintName("FK__KatPost__post_se__36B12243");
+                    .HasConstraintName("FK__KatPost__post_se__4D94879B");
+            });
+
+            modelBuilder.Entity<KatReport>(entity =>
+            {
+                entity.ToTable("KatReport");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.AuthorId).HasColumnName("author_id");
+
+                entity.Property(e => e.CreatedDate)
+                    .HasColumnType("date")
+                    .HasColumnName("created_date");
+
+                entity.Property(e => e.Isprocessed).HasColumnName("isprocessed");
+
+                entity.Property(e => e.PostId).HasColumnName("post_id");
+
+                entity.Property(e => e.Reason)
+                    .HasMaxLength(250)
+                    .IsUnicode(false)
+                    .HasColumnName("reason");
             });
 
             modelBuilder.Entity<KatSection>(entity =>
@@ -134,7 +181,6 @@ namespace KatMemeABlazing.Server.Models
                     .HasColumnName("section_name");
 
                 entity.Property(e => e.SectionPicture)
-                    .HasMaxLength(2083)
                     .IsUnicode(false)
                     .HasColumnName("section_picture");
             });
@@ -166,7 +212,6 @@ namespace KatMemeABlazing.Server.Models
                     .HasColumnName("display_name");
 
                 entity.Property(e => e.DisplayPicture)
-                    .HasMaxLength(2083)
                     .IsUnicode(false)
                     .HasColumnName("display_picture");
 

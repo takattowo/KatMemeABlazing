@@ -1,6 +1,6 @@
-﻿using FluentValidation;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -12,10 +12,20 @@ namespace KatMemeABlazing.Shared.Models
     public partial class KatUserUpdate
     {
         public int Id { get; set; }
+
+        [Required]
+        [MaxLength(13)]
         public string DisplayName { get; set; }
+
+        [Required]
+        [MaxLength(50)]
         public string Email { get; set; }
         public string DisplayPicture { get; set; }
+
+        [MaxLength(50)]
         public string Country { get; set; }
+
+        [MaxLength(50)]
         public string CustomStatus { get; set; }
         public string Message { get; set; }
 
@@ -31,27 +41,40 @@ namespace KatMemeABlazing.Shared.Models
             _httpClient = httpClient;
         }
 
-        public void UpdateSucc()
+        public async Task UpdateSucc()
         {
-            //KatUser user = _katUserUpdate;
-            //await Http.PutAsJsonAsync<KatUser>("katuser/updateprofile/1", user);
-            this.Message = "Profile settings updated!";
+            this.Message = "Processing...";
+            KatUser user = this;
+            await _httpClient.PutAsJsonAsync("katuser/updateprofile/" + this.Id, user);
+            
         }
 
         public async Task GetProfile()
         {
-            KatUser user = await _httpClient.GetFromJsonAsync<KatUser>("katuser/getprofile/" + Id);
+            this.Message = "Processing...";
+            KatUser user = await _httpClient.GetFromJsonAsync<KatUser>("katuser/getprofile/" + this.Id);
             LoadUser(user);
-            this.Message = "Profile looaded!";
+            this.Message = "Profile loaded! (￣ ▽ ￣)╭ ";
+        }
+
+        public async Task GetProfile(int? id)
+        {
+            this.Message = "Processing...";
+            KatUser user = await _httpClient.GetFromJsonAsync<KatUser>("katuser/getprofile/" + id);
+
+            if (user != null)
+                LoadUser(user);
+
+            this.Message = "Profile loaded! (￣ ▽ ￣)╭ ";
         }
 
         private void LoadUser(KatUserUpdate katUserUpdate)
         {
             this.DisplayName = katUserUpdate.DisplayName;
+            this.Email = katUserUpdate.Email;
             this.DisplayPicture = katUserUpdate.DisplayPicture;
             this.Country = katUserUpdate.Country;
             this.CustomStatus = katUserUpdate.CustomStatus;
-            this.Email = katUserUpdate.Email;
         }
 
         public static implicit operator KatUserUpdate(KatUser katUser)
@@ -59,6 +82,7 @@ namespace KatMemeABlazing.Shared.Models
             return new KatUserUpdate
             {
                 DisplayName = katUser.DisplayName,
+                Email = katUser.Email,
                 DisplayPicture = katUser.DisplayPicture,
                 Country = katUser.Country,
                 CustomStatus = katUser.CustomStatus
@@ -70,19 +94,11 @@ namespace KatMemeABlazing.Shared.Models
             return new KatUser
             {
                 DisplayName = katUserUpdate.DisplayName,
+                Email = katUserUpdate.Email,
                 DisplayPicture = katUserUpdate.DisplayPicture,
                 Country = katUserUpdate.Country,
                 CustomStatus = katUserUpdate.CustomStatus
             };
-        }
-    }
-
-    public class KatUserUpdateValidator : AbstractValidator<KatUserUpdate>
-    {
-        public KatUserUpdateValidator()
-        {
-            RuleFor(x => x.DisplayName).Length(2, 13);
-            RuleFor(x => x.CustomStatus).Length(0, 50);
         }
     }
 }
