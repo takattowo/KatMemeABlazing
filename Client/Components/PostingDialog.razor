@@ -102,7 +102,14 @@
         }
 
         else
+        {
+            if (_katPost.PostImage == "null")
+            {
+                _katPost.PostImage = "";
+            }
             isAbleToContent = false;
+        }
+
     }
 
     [Parameter]

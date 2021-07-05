@@ -52,6 +52,24 @@ namespace KatMemeABlazing.Server.Controllers
             return Ok(result);
         }
 
+        [HttpPut("ignore/{id}")]
+        public async Task<KatReport> IgnoreReport(int id, [FromBody] KatReport katuselessstayheretodonothingeh)
+        {
+            KatReport postToUpdate = await _context.KatReports.Where(u => u.Id == id).FirstOrDefaultAsync();
+            postToUpdate.Isprocessed = false;
+            await _context.SaveChangesAsync();
+            return await Task.FromResult(postToUpdate);
+        }
+
+        [HttpPut("process/{id}")]
+        public async Task<KatReport> ProcessReport(int id, [FromBody] KatReport katuselessstayheretodonothingeh)
+        {
+            KatReport postToUpdate = await _context.KatReports.Where(u => u.Id == id).FirstOrDefaultAsync();
+            postToUpdate.Isprocessed = true;
+            await _context.SaveChangesAsync();
+            return await Task.FromResult(postToUpdate);
+        }
+
         [HttpGet("getreport")]
         public List<KatReport> GetReport()
         {

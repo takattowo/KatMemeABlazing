@@ -72,8 +72,8 @@
                                                 <a href="/u/@katnotif.AuthorId" class="avatar mr-10">
                                                     <img src="/Upload/bellnotif.png" alt="...">
                                                 </a>
-                                                <a class="media-body" href="/p/@katnotif.PostId">
-                                                    <div><strong>User @katnotif.PostId</strong> commented on your post <span class="text-muted small">at @katnotif.CreatedDate.ToString().Replace(" 12:00:00 AM", "")</span></div>
+                                                <a class="media-body" href="/p/@katnotif.PostId" @onclick="() => ModalOk()">
+                                                    <div><strong>User @katnotif.AuthorId</strong> commented on your post <span class="text-muted small">at @katnotif.CreatedDate.ToString().Replace(" 12:00:00 AM", "")</span></div>
                                                 </a>
                                             </div>
                                         </li>
@@ -94,7 +94,7 @@
         await client.PutAsJsonAsync<KatNotification>("katnotifications/updatetoseen/" + id, _katNotificationShow);
         await Task.Delay(100);
         StateHasChanged();
-        ModalOk();
+        await ModalOk();
     }
 
     private bool isMod = false;
@@ -135,7 +135,7 @@
             int checkid = Convert.ToInt32(ywouldudodis);
             NotifCount = await _katNotificationShow.GetNotificationCount(checkid);
             listNotif = await _katNotificationShow.GetNotification(checkid);
-            await Task.Delay(2000);
+            await Task.Delay(1900);
             isMod = true;
         }
         else

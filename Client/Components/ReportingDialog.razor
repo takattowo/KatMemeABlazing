@@ -64,6 +64,7 @@
         set;
     }
 
+
     bool isAbleToContent { get; set; } = false;
 
     private void onSectionChange(ChangeEventArgs e)
@@ -96,6 +97,9 @@
     {
         var authie = await authenticationState;
         var u = authie.User;
+
+        if (string.IsNullOrEmpty(_katPost.Reason))
+            _katPost.Reason = "Spam";
 
         if (u.Identity.IsAuthenticated)
         {

@@ -35,7 +35,7 @@
                                 </td>
 
                                 <td>
-                                    @katreport.PostId
+                                    <a href="/p/@katreport.PostId">@katreport.PostId</a>
                                 </td>
 
                                 <td>
@@ -56,22 +56,20 @@
                                     }
                                     else if (katreport.Isprocessed == true)
                                     {
-                                        <span class="badge badge-danger">Deleled</span>
+                                        <span class="badge badge-danger">Deleted</span>
                                     }
 
                                 </td>
 
                                 <td class="text-right">
-                                    <div class="dropdown">
-                                        <button class="btn btn-default btn-sm btn-icon btn-transparent font-xl" type="button" id="d350ad" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="mdi mdi-dots-horizontal"></i>
-                                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="d350ad">
-                                                <a class="dropdown-item" href="#">View</a>
-                                                <a class="dropdown-item" href="#">Ignore</a>
-                                                <a class="dropdown-item" href="#">Detele</a>
-                                            </div>
-                                        </button>
-                                    </div>
+                                    @if (katreport.Isprocessed == null)
+                                    {
+                                        <a @onclick="() => Ignore(katreport.Id)">Ignore</a>  <a @onclick="() => Delete(katreport.Id)">Delete</a>
+                                    }
+                                    else
+                                    {
+                                        <b>Processed</b>
+                                    }
                                 </td>
                             </tr>
                         </ItemContent>
@@ -91,6 +89,24 @@
     public List<KatReport> listReports { get; set; } = new List<KatReport>();
     public bool isToolExpanded = false;
 
+    private void Refresh()
+    {
+        StateHasChanged();
+    }
+
+    private async Task Delete(int id)
+    {
+        await client.PutAsJsonAsync<KatReport>("katreports/process/" + id, _katReportShow);
+        await Task.Delay(100);
+        StateHasChanged();
+    }
+
+    private async Task Ignore(int id)
+    {
+        await client.PutAsJsonAsync<KatReport>("katreports/ignore/" + id, _katReportShow);
+        await Task.Delay(100);
+        StateHasChanged();
+    }
 
     protected override async Task OnInitializedAsync()
     {

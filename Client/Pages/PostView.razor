@@ -113,6 +113,29 @@
                         </div>
                     }
 
+                    @if (PleaseLogin)
+                    {
+                        <div class="modalfake" @onclick="()=>PleaseLogin = false" role="dialog" tabindex="-1">
+                        </div>
+                        <div class="modal-dialog" role="document" style="top: 25%;z-index:9999999;">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Something went wrong!</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true" @onclick="()=>PleaseLogin = false">×</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>You need to be a member in order to take action.</p>
+                                </div>
+                                <div class="modal-footer">
+                                    
+                                    <button type="button" @onclick="()=>PleaseLogin = false" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
                 </div>
                 @if (AboutToPost)
                 {
@@ -187,13 +210,13 @@
                     }
                 </div>
             </div>
-            <button type="button" class="btn btn-outline-secondary">
+            <button type="button" class="btn btn-outline-secondary @GetCssClass()" @onclick="@UpVote">
                 ▲   @if (@_katPostShow.PositiveVoteCount == null)
                 {<span class="ml-10">0</span> }
                 else
                 { <span class="ml-10">@_katPostShow.PositiveVoteCount</span>}
             </button>
-            <button type="button" class="btn btn-outline-secondary">
+            <button type="button" class="btn btn-outline-secondary @GetCssClass2()" @onclick="@DownVote">
                 ▼
                 @if (@_katPostShow.NegativeVoteCount == null)
                 {<span class="ml-10">0</span> }
@@ -320,6 +343,7 @@
     [Parameter]
     public int postId { get; set; }
     public bool AboutToPost { get; set; }
+    public bool PleaseLogin { get; set; }
     public bool AboutToReport { get; set; }
     public bool SeePiccccccccc { get; set; }
 
@@ -366,6 +390,71 @@
         StateHasChanged();
     }
 
+    bool upvoted = false;
+    bool downvoted = false;
+
+    private string GetCssClass()
+    {
+        if (upvoted)
+            return "upvote";
+        else
+            return String.Empty;
+    }
+
+    private string GetCssClass2()
+    {
+        if (downvoted)
+            return "downvote";
+        else
+            return String.Empty;
+    }
+
+    private void UpVote()
+    {
+        if (isGuest)
+        {
+            PleaseLogin = true; return;
+        }
+        if (!upvoted && !downvoted)
+        {
+            upvoted = true;
+            _katPostShow.PositiveVoteCount++;
+        }
+
+        else if (upvoted && !downvoted)
+        {
+            upvoted = false;
+            _katPostShow.PositiveVoteCount--;
+        }
+        else if (!upvoted && downvoted)
+        {
+            upvoted = true; _katPostShow.PositiveVoteCount++;
+            downvoted = false; _katPostShow.NegativeVoteCount--;
+        }
+    }
+
+    private void DownVote()
+    {
+        if (isGuest)
+        {
+            PleaseLogin = true; return;
+        }
+        if (!upvoted && !downvoted)
+        {
+            downvoted = true;
+            _katPostShow.NegativeVoteCount++;
+        }
+        else if (downvoted && !upvoted)
+        {
+            downvoted = false;
+            _katPostShow.NegativeVoteCount--;
+        }
+        else if (!downvoted && upvoted)
+        {
+            downvoted = true; _katPostShow.NegativeVoteCount++;
+            upvoted = false; _katPostShow.PositiveVoteCount--;
+        }
+    }
 
     public bool noPost { get; set; }
 
@@ -390,6 +479,8 @@
         return new ItemsProviderResult<KatComment>(listKatComments, CmtCount);
 
     }
+
+    bool isGuest = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -420,6 +511,7 @@
         var u = authie.User;
         if (u.Identity.IsAuthenticated)
         {
+            isGuest = false;
             var claim = u.FindFirst(c => c.Type == ClaimTypes.NameIdentifier);
             string ywouldudodis = claim?.Value;
             _katCommentComment.CommentAuthor = Convert.ToInt32(ywouldudodis);
@@ -431,7 +523,7 @@
         isToolExpanded = false;
         if (_katPostShow.PostAuthor == _katCommentComment.CommentAuthor)
         {
-            await client.DeleteAsync("katposts/delete/"+ _katPostShow.Id);
+            await client.DeleteAsync("katposts/delete/" + _katPostShow.Id);
             StateHasChanged();
             _navigationManager.NavigateTo("/");
         }
